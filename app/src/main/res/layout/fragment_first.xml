@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.lovely.bear.laboratory.FirstFragment">
+
+    <!--    <com.example.myapplication.AnnouncementView-->
+    <!--        android:id="@+id/textview_first"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="智慧难以界定，但不知何故，当我们看到它时却能够知道这就是智慧。智者在危机中能够保持冷静。他们可以退后一步，统观全局。他们深思熟虑，自我反省。他们认可自己知识的局限，"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/button_first"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+    <TextView
+        android:id="@+id/textview_first2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:text="智慧难以界定，但不知何故，当我们看到它时却能够知道这就是智慧。智者在危机中能够保持冷静。他们可以退后一步，统观全局。他们深思熟虑，自我反省。他们认可自己知识的局限，"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_first"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_first2" />
+</androidx.constraintlayout.widget.ConstraintLayout>
