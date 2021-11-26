@@ -1,5 +1,6 @@
 node {
     def projectName = "Laboratory"
+    def result
 
     try {
 
@@ -20,9 +21,11 @@ node {
         stage("Archive"){
             archiveArtifacts artifacts: "app/build/outputs/apk/debug/*.apk", followSymlinks: false
         }
+
+        result = true
     } catch (e) {
         echo 'run with exception'
-
+        result = false
         // Since we're catching the exception in order to report on it,
         // we need to re-throw it, to ensure that the build is marked as failed
         throw e
@@ -35,5 +38,8 @@ node {
         replyTo: 'Jenkins Auto Reploy',
         subject: 'Hello Jenkins Build Result',
         to: 'mostwantx@163.com'
+
+        //ding notify
+        dingtalk robot: "c39d892c-c631-4de4-9ce6-2d93c65da5ad",type:"TEXT",text:["行数1","行数2","结果：${result}"],at:["cmoco4n"]
     }
 }
