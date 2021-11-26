@@ -40,6 +40,6 @@ node {
         to: 'mostwantx@163.com'
 
         //ding notify
-        dingtalk robot: "c39d892c-c631-4de4-9ce6-2d93c65da5ad",type:"TEXT",text:["行数1","行数2","结果：${result}"],at:["cmoco4n"]
+        //dingtalk robot: "c39d892c-c631-4de4-9ce6-2d93c65da5ad",type:"TEXT",text:["描述1","描述2","状态：${result}"],at:["18676668749"]
     }
 }
