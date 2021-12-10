@@ -24,6 +24,7 @@
         android:maxLines="1"
         android:singleLine="true"
         android:text="智慧难以界定，但不知何故，当我们看到它时却能够知道这就是智慧。智者在危机中能够保持冷静。他们可以退后一步，统观全局。他们深思熟虑，自我反省。他们认可自己知识的局限，"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +35,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/next"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_first2" />
+
+    <com.lovely.bear.laboratory.ProgressView
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_first" />
 </androidx.constraintlayout.widget.ConstraintLayout>
