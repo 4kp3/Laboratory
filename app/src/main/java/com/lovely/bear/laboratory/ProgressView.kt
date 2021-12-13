@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 
 /**
  *
@@ -19,7 +20,6 @@ class ProgressView @JvmOverloads constructor(
 
     init {
         minimumWidth = dpToPx(280F).toInt()
-        minimumHeight = dpToPx(70F).toInt()
     }
 
     private val backgroundColor = Color.parseColor("#FFFFFF")
@@ -135,34 +135,33 @@ class ProgressView @JvmOverloads constructor(
 
     private var value: Progress? = null
 
+    /**
+     * 入口
+     */
+    fun setProgress(value: Progress) {
+        this.value = value
+        if (anchorReadiness) {
+            calculate(value)
+            invalidate()
+        }
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-//        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
-//        when (heightMode) {
-//            MeasureSpec.UNSPECIFIED -> {
-//            }
-//            MeasureSpec.AT_MOST, MeasureSpec.EXACTLY -> {
-//                when (layoutParams.height) {
-//                    ViewGroup.LayoutParams.WRAP_CONTENT->{
-//                    }
-//                }
-//            }
-//        }
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+
+        when (layoutParams.height) {
+            ViewGroup.LayoutParams.WRAP_CONTENT->{
+                setVerticalAnchor(paddingTop.toFloat())
+                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((nodeTextTop+nodeTextHeight+dpToPx(4F)).toInt(),heightMode))
+            }
+        }
+
         anchorReadiness = false
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-
-        fun setVerticalAnchor(offsetY: Float) {
-            topTextTop = offsetY
-            pointTop = topTextTop + topTextHeight + pointMarginTop
-            pointLineTop = pointTop + pointCircleHeight
-            nodeTop = pointLineTop + pointLineShortHeight
-            progressLineTop = nodeTop + dpToPx(6F)
-            pointLineBottom = nodeTop + nodeCircleRadius * 2
-            nodeTextTop = nodeTop + nodeHeight + nodeTextMarginTop
-        }
 
         setVerticalAnchor(0F)
         val totalHeight = nodeTextTop + nodeTextHeight
@@ -213,78 +212,6 @@ class ProgressView @JvmOverloads constructor(
             calculate(it)
         }
     }
-
-    private fun setPoint(offsetX: Float) {
-        pointCirclePoint.set(offsetX, pointTop + pointCircleRadius)
-        pointLineRect.set(
-            offsetX - pointLineWidth / 2,
-            pointLineTop,
-            offsetX + pointLineWidth / 2,
-            pointLineBottom
-        )
-    }
-
-    private fun calculate(value: Progress) {
-
-        basicReq = getBasicRequirements(value.total)
-        grey = when {
-            value.score != null && value.count >= value.total -> getScoreMy(value.score)
-            value.count == value.total -> getScoreMy(0F)
-            else -> getCountMy(value.count)
-        }
-
-        val node = value.node
-        if (value.count >= value.total && value.score != null && node != null) {
-            progressLineEnd = when (value.score) {
-                0F -> centerD.x
-                node.c -> centerC.x
-                node.b -> centerB.x
-                in node.a..100F -> centerA.x
-                in 0F..node.c -> (centerC.x - centerD.x - 2 * nodeCircleRadius - pointLineWidth) * value.score / node.c + centerD.x + nodeCircleRadius + pointLineWidth / 2
-                in node.c..node.b -> (centerB.x - centerC.x - 2 * nodeCircleRadius - pointLineWidth) * (value.score - node.c) / (node.b - node.c) + centerC.x + nodeCircleRadius + pointLineWidth / 2
-                in node.b..node.a -> (centerA.x - centerB.x - 2 * nodeCircleRadius - pointLineWidth) * (value.score - node.b) / (node.a - node.b) + centerB.x + nodeCircleRadius + pointLineWidth / 2
-                else -> centerA.x
-            }
-            setPoint(progressLineEnd!!)
-            c = getScore(node.c)
-            b = getScore(node.b)
-            a = getScore(node.a)
-        } else {
-            when (value.count) {
-                0 -> {
-                    setPoint(centerE.x)
-                }
-                value.total -> {
-                    setPoint(centerD.x)
-                }
-                else -> {
-                    val c: Float = value.count * 1F / value.total
-                    for (i in 0 until BASIC_CIRCLE_COUNT) {
-                        val j = (i + 1) * 1F / BASIC_CIRCLE_COUNT
-                        if (j >= c) {
-                            basicCircleCenter.getOrNull(i)?.let {
-                                setPoint(it.x)
-                            }
-                            break
-                        }
-                    }
-                }
-            }
-            progressLineEnd = null
-        }
-
-        val pointX = pointCirclePoint.x
-        accentBasicCircle = basicCircleCenter.filterIndexed { _, p ->
-            p.x <= pointX
-        }
-        backgroundBasicCircle = basicCircleCenter.filterIndexed { _, p ->
-            p.x > pointX
-        }
-
-        accentNodes = nodes.filter { it.x <= pointX }
-        backgroundNodes = nodes.filter { it.x > pointX }
-    }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         fun drawPoint(black: String, grey: String) {
@@ -510,6 +437,88 @@ class ProgressView @JvmOverloads constructor(
         }
     }
 
+    private fun setVerticalAnchor(offsetY: Float) {
+        topTextTop = offsetY
+        pointTop = topTextTop + topTextHeight + pointMarginTop
+        pointLineTop = pointTop + pointCircleHeight
+        nodeTop = pointLineTop + pointLineShortHeight
+        progressLineTop = nodeTop + dpToPx(6F)
+        pointLineBottom = nodeTop + nodeCircleRadius * 2
+        nodeTextTop = nodeTop + nodeHeight + nodeTextMarginTop
+    }
+
+    private fun setPoint(offsetX: Float) {
+        pointCirclePoint.set(offsetX, pointTop + pointCircleRadius)
+        pointLineRect.set(
+            offsetX - pointLineWidth / 2,
+            pointLineTop,
+            offsetX + pointLineWidth / 2,
+            pointLineBottom
+        )
+    }
+
+    private fun calculate(value: Progress) {
+
+        basicReq = getBasicRequirements(value.total)
+        grey = when {
+            value.score != null && value.count >= value.total -> getScoreMy(value.score)
+            value.count == value.total -> getScoreMy(0F)
+            else -> getCountMy(value.count)
+        }
+
+        val node = value.node
+        if (value.count >= value.total && value.score != null && node != null) {
+            progressLineEnd = when (value.score) {
+                0F -> centerD.x
+                node.c -> centerC.x
+                node.b -> centerB.x
+                in node.a..100F -> centerA.x
+                in 0F..node.c -> (centerC.x - centerD.x - 2 * nodeCircleRadius - pointLineWidth) * value.score / node.c + centerD.x + nodeCircleRadius + pointLineWidth / 2
+                in node.c..node.b -> (centerB.x - centerC.x - 2 * nodeCircleRadius - pointLineWidth) * (value.score - node.c) / (node.b - node.c) + centerC.x + nodeCircleRadius + pointLineWidth / 2
+                in node.b..node.a -> (centerA.x - centerB.x - 2 * nodeCircleRadius - pointLineWidth) * (value.score - node.b) / (node.a - node.b) + centerB.x + nodeCircleRadius + pointLineWidth / 2
+                else -> centerA.x
+            }
+            setPoint(progressLineEnd!!)
+            c = getScore(node.c)
+            b = getScore(node.b)
+            a = getScore(node.a)
+        } else {
+            when (value.count) {
+                0 -> {
+                    setPoint(centerE.x)
+                }
+                value.total -> {
+                    setPoint(centerD.x)
+                }
+                else -> {
+                    val c: Float = value.count * 1F / value.total
+                    for (i in 0 until BASIC_CIRCLE_COUNT) {
+                        val j = (i + 1) * 1F / BASIC_CIRCLE_COUNT
+                        if (j >= c) {
+                            basicCircleCenter.getOrNull(i)?.let {
+                                setPoint(it.x)
+                            }
+                            break
+                        }
+                    }
+                }
+            }
+            progressLineEnd = null
+        }
+
+        val pointX = pointCirclePoint.x
+        accentBasicCircle = basicCircleCenter.filterIndexed { _, p ->
+            p.x <= pointX
+        }
+        backgroundBasicCircle = basicCircleCenter.filterIndexed { _, p ->
+            p.x > pointX
+        }
+
+        accentNodes = nodes.filter { it.x <= pointX }
+        backgroundNodes = nodes.filter { it.x > pointX }
+    }
+
+
 
     private val textBound = Rect()
 
@@ -563,14 +572,6 @@ class ProgressView @JvmOverloads constructor(
 //        textBound.offset(x.toInt(), baseline.toInt())
 //        paint.style = Paint.Style.STROKE
 //        canvas.drawRect(textBound, paint)
-    }
-
-    fun setProgress(value: Progress) {
-        this.value = value
-        if (anchorReadiness) {
-            calculate(value)
-            invalidate()
-        }
     }
 
     private fun spToPx(value: Float): Float {
