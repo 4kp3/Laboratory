@@ -41,6 +41,7 @@
         app:layout_constraintTop_toBottomOf="@id/textview_first2" />
 
     <com.lovely.bear.laboratory.ProgressView
+        android:id="@+id/progress_view"
         android:layout_width="match_parent"
         android:layout_height="140dp"
         app:layout_constraintEnd_toEndOf="parent"

@@ -39,11 +39,8 @@ class ProgressView @JvmOverloads constructor(
     //文本字体灰色
     private val textGreyColor = Color.parseColor("#999999")
 
-    //标签（顶部）文本字体大小
+    //标签（顶部和底部）文本字体大小
     private val labelTextSize = spToPx(12F)
-
-    //节点（底部）文本字体大小
-    private val nodeTextSize = spToPx(11F)
 
     //进度（字母）文本字体大小
     private val progressTextSize = spToPx(10F)
@@ -70,9 +67,10 @@ class ProgressView @JvmOverloads constructor(
         progressPaint.color = progressBackgroundColor
         progressPaint.isAntiAlias = true
 
-        textPaint.color = textGreyColor
-        textPaint.textSize = labelTextSize
+        textPaint.style = Paint.Style.FILL
         textPaint.isAntiAlias = true
+        textPaint.textSize = labelTextSize
+        textPaint.color = textGreyColor
     }
 
     //锚点
@@ -81,17 +79,14 @@ class ProgressView @JvmOverloads constructor(
     private val centerC = PointF()
     private val centerB = PointF()
     private val centerA = PointF()
+    private val nodes = listOf(centerE, centerD, centerC, centerB, centerA)
 
     private val basicCircleCenter = Array(BASIC_CIRCLE_COUNT) { PointF() }
 
     private val progressLineStart = PointF()
-    private val progressLineEnd = PointF()
+    private val progressLineBackgroundEnd = PointF()
 
-    private val pointCirclePoint = PointF()
-    private val pointLineRect = RectF()
-
-
-    //水平锚点
+    private var rightEdge = 0F
 
     //垂直锚点
     private var topTextTop = 0F
@@ -113,7 +108,32 @@ class ProgressView @JvmOverloads constructor(
     //节点标签文本marginTop（距离顶部节点圆圈距离）
     private val nodeTextMarginTop = dpToPx(10F)
     private var nodeTextTop = 0F
-    private val nodeTextHeight = nodeTextSize
+    private val nodeTextHeight = labelTextSize
+
+    private val nodeBackgroundPath = Path()
+    private val nodeCirclesPath = Path()
+    private val nodePointPath = Path()
+
+    private var anchorReadiness: Boolean = false
+
+    //进度
+    private val pointCirclePoint = PointF()
+    private val pointLineRect = RectF()
+    private var progressLineEnd: Float? = null
+    private var accentBasicCircle: List<PointF> = emptyList()
+    private var backgroundBasicCircle: List<PointF> = emptyList()
+    private var accentNodes: List<PointF> = emptyList()
+    private var backgroundNodes: List<PointF> = emptyList()
+
+    //进度文
+    private var basicReq = ""
+    private val black = "我"
+    private var grey = ""
+    private var a = ""
+    private var b = ""
+    private var c = ""
+
+    private var value: Progress? = null
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -128,6 +148,7 @@ class ProgressView @JvmOverloads constructor(
 //                }
 //            }
 //        }
+        anchorReadiness = false
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -165,7 +186,7 @@ class ProgressView @JvmOverloads constructor(
             }
 
             progressLineStart.set(centerD.x, progressLineTop)
-            progressLineEnd.set(centerA.x, progressLineTop + progressLineHeight)
+            progressLineBackgroundEnd.set(centerA.x, progressLineTop + progressLineHeight)
         }
 
         fun setPoint(offsetX: Float) {
@@ -181,49 +202,92 @@ class ProgressView @JvmOverloads constructor(
         val innerPaddingHorizontal = dpToPx(10F)
         val line = (w - paddingStart - paddingEnd - innerPaddingHorizontal * 2) / 4
         val xOffset = paddingStart.toFloat() + innerPaddingHorizontal
+        rightEdge = w - innerPaddingHorizontal
         setHorizontalAnchor(xOffset, line)
 
-        setPoint(centerD.x)
-        //nodeD.set()
+        setPoint(centerB.x)
+
+        anchorReadiness = true
+
+        value?.let {
+            calculate(it)
+        }
     }
 
-    private val nodeBackgroundPath = Path()
-    private val nodeCirclesPath = Path()
-    private val nodePointPath = Path()
+    private fun setPoint(offsetX: Float) {
+        pointCirclePoint.set(offsetX, pointTop + pointCircleRadius)
+        pointLineRect.set(
+            offsetX - pointLineWidth / 2,
+            pointLineTop,
+            offsetX + pointLineWidth / 2,
+            pointLineBottom
+        )
+    }
+
+    private fun calculate(value: Progress) {
+
+        basicReq = getBasicRequirements(value.total)
+        grey = when {
+            value.score != null && value.count >= value.total -> getScoreMy(value.score)
+            value.count == value.total -> getScoreMy(0F)
+            else -> getCountMy(value.count)
+        }
+
+        val node = value.node
+        if (value.count >= value.total && value.score != null && node != null) {
+            progressLineEnd = when (value.score) {
+                0F -> centerD.x
+                node.c -> centerC.x
+                node.b -> centerB.x
+                in node.a..100F -> centerA.x
+                in 0F..node.c -> (centerC.x - centerD.x - 2 * nodeCircleRadius - pointLineWidth) * value.score / node.c + centerD.x + nodeCircleRadius + pointLineWidth / 2
+                in node.c..node.b -> (centerB.x - centerC.x - 2 * nodeCircleRadius - pointLineWidth) * (value.score - node.c) / (node.b - node.c) + centerC.x + nodeCircleRadius + pointLineWidth / 2
+                in node.b..node.a -> (centerA.x - centerB.x - 2 * nodeCircleRadius - pointLineWidth) * (value.score - node.b) / (node.a - node.b) + centerB.x + nodeCircleRadius + pointLineWidth / 2
+                else -> centerA.x
+            }
+            setPoint(progressLineEnd!!)
+            c = getScore(node.c)
+            b = getScore(node.b)
+            a = getScore(node.a)
+        } else {
+            when (value.count) {
+                0 -> {
+                    setPoint(centerE.x)
+                }
+                value.total -> {
+                    setPoint(centerD.x)
+                }
+                else -> {
+                    val c: Float = value.count * 1F / value.total
+                    for (i in 0 until BASIC_CIRCLE_COUNT) {
+                        val j = (i + 1) * 1F / BASIC_CIRCLE_COUNT
+                        if (j >= c) {
+                            basicCircleCenter.getOrNull(i)?.let {
+                                setPoint(it.x)
+                            }
+                            break
+                        }
+                    }
+                }
+            }
+            progressLineEnd = null
+        }
+
+        val pointX = pointCirclePoint.x
+        accentBasicCircle = basicCircleCenter.filterIndexed { _, p ->
+            p.x <= pointX
+        }
+        backgroundBasicCircle = basicCircleCenter.filterIndexed { _, p ->
+            p.x > pointX
+        }
+
+        accentNodes = nodes.filter { it.x <= pointX }
+        backgroundNodes = nodes.filter { it.x > pointX }
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
-        /**
-         * 阶段一，计算进度
-         *
-         * 阶段二，计算锚点
-         * 1。水平方向，五个节点的开始位置
-         * 2。垂直分层
-         * 2。1 顶部标签位置
-         * 2。2 指针起始
-         * 2。3 节点起始
-         * 2。4 底部标签起始
-         *
-         * 阶段三，绘制
-         * 1。顶部标签
-         * 2。指针
-         * 3。进度条进度
-         * 4。进度条背景
-         * 5。底部标签
-         */
-
-        progressPaint.strokeWidth = progressLineHeight
-        progressPaint.style = Paint.Style.FILL
-        canvas.drawRect(
-            progressLineStart.x,
-            progressLineStart.y,
-            centerA.x,
-            progressLineEnd.y,
-            progressPaint
-        )
-
-        fun drawPoint() {
+        fun drawPoint(black: String, grey: String) {
             progressPaint.color = progressAccentColor
             progressPaint.style = Paint.Style.FILL
             val radius = pointLineWidth / 2
@@ -258,9 +322,48 @@ class ProgressView @JvmOverloads constructor(
                 pointCircleRadius,
                 progressPaint
             )
-        }
 
-        drawPoint()
+            textPaint.textSize = labelTextSize
+            textPaint.color = textColor
+
+            val x = pointCirclePoint.x - nodeCircleRadius
+            val blackWidth = textPaint.measureText(black)
+            val greyWidth = textPaint.measureText(grey)
+
+            val textHoAli: Int
+            val xBlack: Float
+            val xGrey: Float
+
+            if (x + blackWidth + greyWidth <= rightEdge) {
+                textHoAli = TEXT_ALIGNMENT_RIGHT
+                xBlack = x
+                xGrey = x + blackWidth
+            } else {
+                textHoAli = TEXT_ALIGNMENT_LEFT
+                xBlack = rightEdge - greyWidth
+                xGrey = rightEdge
+            }
+
+            drawText(
+                text = black,
+                horizontalAlignment = textHoAli,
+                verticalAlignment = TEXT_ALIGNMENT_BOTTOM,
+                anchorX = xBlack,
+                anchorY = topTextTop,
+                paint = textPaint,
+                canvas = canvas
+            )
+            textPaint.color = textGreyColor
+            drawText(
+                text = grey,
+                horizontalAlignment = textHoAli,
+                verticalAlignment = TEXT_ALIGNMENT_BOTTOM,
+                anchorX = xGrey,
+                anchorY = topTextTop,
+                paint = textPaint,
+                canvas = canvas
+            )
+        }
 
         fun drawCircles(nodes: List<PointF>, isAccent: Boolean) {
             nodeCirclesPath.reset()
@@ -272,8 +375,6 @@ class ProgressView @JvmOverloads constructor(
                 if (isAccent) progressAccentColor else progressBackgroundColor
             canvas.drawPath(nodeCirclesPath, progressPaint)
         }
-
-        drawCircles(basicCircleCenter.toList(), true)
 
         fun drawNodes(nodes: List<PointF>, isAccent: Boolean) {
             nodeBackgroundPath.reset()
@@ -290,8 +391,6 @@ class ProgressView @JvmOverloads constructor(
             canvas.drawPath(nodeBackgroundPath, progressPaint)
         }
 
-        drawNodes(listOf(centerE, centerD, centerC, centerB, centerA), true)
-
         fun drawAE(accentCount: Int) {
             val ch: Int = 'E'.code
             listOf(centerE, centerD, centerC, centerB, centerA).forEachIndexed { index, pointF ->
@@ -302,7 +401,7 @@ class ProgressView @JvmOverloads constructor(
                     anchorX = pointF.x,
                     anchorY = pointF.y,
                     paint = textPaint.apply {
-                        style=Paint.Style.FILL
+                        textPaint.textSize = progressTextSize
                         textPaint.color =
                             if (index < accentCount) progressAccentColor else progressBackgroundNodeColor
                     },
@@ -311,17 +410,104 @@ class ProgressView @JvmOverloads constructor(
             }
         }
 
-        drawAE(3)
-
-        drawText(
-            text = "你好，Android",
-            horizontalAlignment = TEXT_ALIGNMENT_CENTER,
-            verticalAlignment = TEXT_ALIGNMENT_CENTER,
-            anchorX = pointCirclePoint.x,
-            anchorY = topTextTop,
-            paint = textPaint,
-            canvas = canvas
+        progressPaint.strokeWidth = progressLineHeight
+        progressPaint.style = Paint.Style.FILL
+        progressPaint.color = progressBackgroundColor
+        canvas.drawRect(
+            progressLineStart.x,
+            progressLineStart.y,
+            centerA.x,
+            progressLineBackgroundEnd.y,
+            progressPaint
         )
+        progressPaint.color = progressAccentColor
+        progressLineEnd?.let {
+            canvas.drawRect(
+                progressLineStart.x,
+                progressLineStart.y,
+                it,
+                progressLineBackgroundEnd.y,
+                progressPaint
+            )
+        }
+
+        fun drawBasicDesc(text: String) {
+            val x = centerE.x + (centerD.x - centerE.x) / 2
+            textPaint.color = textColor
+            textPaint.textSize = labelTextSize
+            drawText(
+                text = text,
+                horizontalAlignment = TEXT_ALIGNMENT_CENTER,
+                verticalAlignment = TEXT_ALIGNMENT_BOTTOM,
+                anchorX = x,
+                anchorY = nodeTextTop,
+                paint = textPaint,
+                canvas = canvas
+            )
+        }
+
+        fun drawNodeEmptyText(s: String) {
+            val x = centerD.x + (centerA.x - centerD.x) / 2
+            textPaint.color = textGreyColor
+            textPaint.textSize = labelTextSize
+            drawText(
+                text = s,
+                horizontalAlignment = TEXT_ALIGNMENT_CENTER,
+                verticalAlignment = TEXT_ALIGNMENT_BOTTOM,
+                anchorX = x,
+                anchorY = nodeTextTop,
+                paint = textPaint,
+                canvas = canvas
+            )
+        }
+
+        fun drawNodeText(c: String, b: String, a: String) {
+            textPaint.color = textColor
+            textPaint.textSize = labelTextSize
+            drawText(
+                text = c,
+                horizontalAlignment = TEXT_ALIGNMENT_CENTER,
+                verticalAlignment = TEXT_ALIGNMENT_BOTTOM,
+                anchorX = centerC.x,
+                anchorY = nodeTextTop,
+                paint = textPaint,
+                canvas = canvas
+            )
+            drawText(
+                text = b,
+                horizontalAlignment = TEXT_ALIGNMENT_CENTER,
+                verticalAlignment = TEXT_ALIGNMENT_BOTTOM,
+                anchorX = centerB.x,
+                anchorY = nodeTextTop,
+                paint = textPaint,
+                canvas = canvas
+            )
+            drawText(
+                text = a,
+                horizontalAlignment = TEXT_ALIGNMENT_CENTER,
+                verticalAlignment = TEXT_ALIGNMENT_BOTTOM,
+                anchorX = centerA.x,
+                anchorY = nodeTextTop,
+                paint = textPaint,
+                canvas = canvas
+            )
+        }
+
+        drawPoint(black, grey)
+
+        drawCircles(accentBasicCircle, true)
+        drawCircles(backgroundBasicCircle, false)
+
+        drawNodes(accentNodes, true)
+        drawNodes(backgroundNodes, false)
+
+        drawAE(accentNodes.size)
+        drawBasicDesc(basicReq)
+        if (progressLineEnd == null) {
+            drawNodeEmptyText(NOT_PUBLIC_DESC)
+        } else {
+            drawNodeText(c, b, a)
+        }
     }
 
 
@@ -370,17 +556,21 @@ class ProgressView @JvmOverloads constructor(
             }
         }
 
-        canvas.drawText(text, x, baseline, paint)
+        canvas.drawText(text, 0, text.length, x, baseline, paint)
 
-        canvas.drawLine(anchorX, anchorY - 20, anchorX, anchorY + 20, paint)
-        canvas.drawLine(anchorX - 20, anchorY, anchorX + 20, anchorY, paint)
-        textBound.offset(x.toInt(), baseline.toInt())
-        paint.style = Paint.Style.STROKE
-        canvas.drawRect(textBound, paint)
+//        canvas.drawLine(anchorX, anchorY - 20, anchorX, anchorY + 20, paint)
+//        canvas.drawLine(anchorX - 20, anchorY, anchorX + 20, anchorY, paint)
+//        textBound.offset(x.toInt(), baseline.toInt())
+//        paint.style = Paint.Style.STROKE
+//        canvas.drawRect(textBound, paint)
     }
 
-    fun setProgress() {
-        //计算Path
+    fun setProgress(value: Progress) {
+        this.value = value
+        if (anchorReadiness) {
+            calculate(value)
+            invalidate()
+        }
     }
 
     private fun spToPx(value: Float): Float {
@@ -399,22 +589,16 @@ class ProgressView @JvmOverloads constructor(
         )
     }
 
-    //private fun progress
-
-    private class Struct() {
-
-
-    }
-
     /**
      * 进度模型
-     * @param section 阶段，0为基本要求阶段，1为评级阶段
      */
-    sealed class Progress(val section: Int) {
-        class Basic(value: Int, val total: Int = 6) : Progress(0)
-        class Grade(value: Float, val node: Node?, val total: Float = 100F) : Progress(1) {
-            class Node(val a: Float, val b: Float, val c: Float)
-        }
+    class Progress(
+        val count: Int,
+        val total: Int,
+        val score: Float?,
+        val node: Node?
+    ) {
+        class Node(val a: Float, val b: Float, val c: Float)
     }
 
     companion object {
@@ -422,7 +606,13 @@ class ProgressView @JvmOverloads constructor(
         private const val BASIC_REQUIREMENTS = "%d次推荐"
 
         //分数文本
-        private const val SCORE = "%f.1分"
+        private const val SCORE = "%.1f分"
+
+        private const val SCORE_MY = "（%.1f分）"
+        private const val COUNT_MY = "（%d次）"
+
+        private const val NOT_PUBLIC_DESC = "等级分数要求（待公布）"
+
         private const val BASIC_CIRCLE_COUNT = 6
         private const val GRADE_NODE_CIRCLE_STROKE_DP = 1.5
 
@@ -434,6 +624,9 @@ class ProgressView @JvmOverloads constructor(
 
         private fun getBasicRequirements(count: Int): String =
             String.format(BASIC_REQUIREMENTS, count)
+
+        private fun getCountMy(count: Int) = String.format(COUNT_MY, count)
+        private fun getScoreMy(score: Float) = String.format(SCORE_MY, score)
 
         private fun getScore(value: Float): String = String.format(SCORE, value)
 
