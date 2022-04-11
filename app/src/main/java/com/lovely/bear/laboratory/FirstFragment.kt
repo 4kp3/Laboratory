@@ -33,24 +33,25 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-        }
-        binding.progressView.setProgress(
-            ProgressView.Progress(count = 1,total = 12,score = 0F,node = ProgressView.Progress.Node(a=74.3F,b=55F,c=20.9F))
-        )
+//        binding.buttonFirst.setOnClickListener {
+//            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+//        }
+//        binding.progressView.setProgress(
+//            ProgressView.Progress(count = 1,total = 12,score = 0F,node = ProgressView.Progress.Node(a=74.3F,b=55F,c=20.9F))
+//        )
+        binding.progressView.setData(3.9F)
     }
 
     override fun onResume() {
         super.onResume()
 //        binding.textviewFirst.isSelected = true
-        binding.textviewFirst2.isSelected = true
+//        binding.textviewFirst2.isSelected = true
     }
 
     override fun onPause() {
         super.onPause()
 //        binding.textviewFirst.isSelected = false
-        binding.textviewFirst2.isSelected = false
+//        binding.textviewFirst2.isSelected = false
     }
 
     override fun onDestroyView() {

@@ -133,7 +133,7 @@ class ProgressView @JvmOverloads constructor(
     private var b = ""
     private var c = ""
 
-    private var value: Progress? = null
+    private var value: Progress? = INIT_PROGRESS
 
     /**
      * 入口
@@ -151,9 +151,16 @@ class ProgressView @JvmOverloads constructor(
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
 
         when (layoutParams.height) {
-            ViewGroup.LayoutParams.WRAP_CONTENT->{
+            ViewGroup.LayoutParams.WRAP_CONTENT -> {
                 setVerticalAnchor(paddingTop.toFloat())
-                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((nodeTextTop+nodeTextHeight+dpToPx(4F)).toInt(),heightMode))
+                super.onMeasure(
+                    widthMeasureSpec,
+                    MeasureSpec.makeMeasureSpec(
+                        (paddingTop + paddingBottom + nodeTextTop + nodeTextHeight + dpToPx(4F)).toInt(),
+                        heightMode
+                    )
+                )
+
             }
         }
 
@@ -212,6 +219,7 @@ class ProgressView @JvmOverloads constructor(
             calculate(it)
         }
     }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         fun drawPoint(black: String, grey: String) {
@@ -519,7 +527,6 @@ class ProgressView @JvmOverloads constructor(
     }
 
 
-
     private val textBound = Rect()
 
     /**
@@ -536,6 +543,7 @@ class ProgressView @JvmOverloads constructor(
         paint: Paint,
         canvas: Canvas
     ) {
+        if (text.isBlank()) return
         paint.getTextBounds(text, 0, text.lastIndex, textBound)
         val textWidth = paint.measureText(text)
         val fontMetrics = paint.fontMetrics
@@ -622,6 +630,8 @@ class ProgressView @JvmOverloads constructor(
         private const val TEXT_ALIGNMENT_RIGHT = 2
         private const val TEXT_ALIGNMENT_TOP = 3
         private const val TEXT_ALIGNMENT_BOTTOM = 4
+
+        private val INIT_PROGRESS = Progress(0, 12, null, null)
 
         private fun getBasicRequirements(count: Int): String =
             String.format(BASIC_REQUIREMENTS, count)

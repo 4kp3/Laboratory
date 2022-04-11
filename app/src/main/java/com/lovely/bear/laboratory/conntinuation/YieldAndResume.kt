@@ -1,23 +1,20 @@
 package com.lovely.bear.laboratory.conntinuation
 
-import kotlinx.coroutines.delay
+import java.lang.IllegalStateException
 import kotlin.coroutines.*
 
 suspend fun main() {
-    val producter = yieldAble<Unit, Int> {
+    val product = yieldAble<Unit, Int> {
         println("make 1")
         yield(1)
         println("make 2")
         yield(2)
         println("make 3")
         yield(3)
-        1
     }
 
-    val resumer = yieldAble<Int, Unit> {
-        //初始消费
-        val v1 = yield(Unit)
-        println("receive :$v1")
+    val resume = yieldAble<Int, Unit> { initValue ->
+        println("receive :$initValue")
         val v2 = yield(Unit)
         println("receive :$v2")
         val v3 = yield(Unit)
@@ -26,11 +23,11 @@ suspend fun main() {
 
     var i = 0
     while (i++ < 3) {
-        val pV = producter.resume(Unit)
-        resumer.resume(pV)
+        val pV = product.resume(Unit)
+        resume.resume(pV)
     }
-    producter.resumeWith(Result.success(1))
-    resumer.resumeWith(Result.success(Unit))
+    product.resumeWith(Result.success(1))
+    resume.resumeWith(Result.success(Unit))
 }
 
 
@@ -53,66 +50,99 @@ suspend fun main() {
 /**
  * 创建一个拥有yield/resume能力的协程（延续）
  */
-fun <T, R> yieldAble(block: suspend YieldScope<T, R>.() -> R): YieldAndResumeContinuation<T, R> {
+fun <T, R> yieldAble(block: suspend YieldScope<T, R>.(T) -> Unit): YieldAndResumeContinuation<T, R> {
     return YieldAndResumeContinuation(
         block = block
     )
 }
 
-class YieldScope<T, R> {
+sealed class YieldAndResumeStatus {
+    // R resume方法返回值和yield方法传入参数，T是block初始参数和yield返回值
+    class Created(
+        val continuation: Continuation<Unit>
+    ) :
+        YieldAndResumeStatus() {
 
-    var next: Continuation<T>? = null
-    var parent: Continuation<R>? = null
-    var initValue: T? = null
-
-    /**
-     * 暂停当前协程，恢复上级协程
-     * @param value 要传递的值
-     */
-    suspend fun yield(value: R): T {
-        return suspendCoroutine<T> {
-            //不能直接resume，需要挂起
-            //it.resume(value)
-            val initT = initValue
-            initValue = null
-            if (initT == null||initT==Unit) {
-                next = it
-                parent?.resume(value)
-            } else {
-                it.resume(initT)
-            }
+        fun resume() {
+            continuation.resume(Unit)
         }
     }
+
+    class Resumed<R>(private val continuation: Continuation<R>) : YieldAndResumeStatus() {
+        fun resume(value: R) {
+            continuation.resume(value)
+        }
+    }
+
+    class Yield<T>(private val continuation: Continuation<T>) : YieldAndResumeStatus() {
+        fun resume(value: T) {
+            continuation.resume(value)
+        }
+    }
+
+    object Dead : YieldAndResumeStatus()
 }
 
 /**
- * 注意Yield方法不能声明在这里，因为这是给用户返回的对象，如果用户拿到了，将有权限调用。所以委托给另外的对象。
- *
- * @param T 调用resume方法的传入值
- * @param R 调用yield方法的传出值
+ * Yield方法声明在这里为了屏蔽用户拿到 YieldAndResumeContinuation 后在外部调用
  */
-class YieldAndResumeContinuation<T, R>(block: suspend YieldScope<T, R>.() -> R) :
-    Continuation<R> {
+interface YieldScope<T, R> {
 
-    private val scope: YieldScope<T, R> = YieldScope()
+    /**
+     * 暂停当前协程，并返回入参
+     * @param value 要传递出去的值
+     */
+    suspend fun yield(value: R): T
+}
+
+/**
+ * 代表可以恢复暂停的协程对象。
+ * 控制状态流转。
+ * @param T block初始参数和yield方法的返回值类型
+ * @param R resume返回和yield方法传入参数类型
+ */
+class YieldAndResumeContinuation<T, R>(block: suspend YieldScope<T, R>.(T) -> Unit) :
+    Continuation<R> {
 
     override val context: CoroutineContext
         get() = EmptyCoroutineContext
 
-    private val initBlockContinuation =
-        block.createCoroutine(scope, object : Continuation<R> {
-            override val context: CoroutineContext
-                get() = EmptyCoroutineContext
+    private val scope: YieldScope<T, R> = object : YieldScope<T, R> {
+        override suspend fun yield(value: R): T {
+            return suspendCoroutine<T> { continuation ->
+                //读取并更新，如果读取时状态异常，则抛出异常
+                val pre = statusUpdater.getAndUpdate(this@YieldAndResumeContinuation) {
+                    if (it is YieldAndResumeStatus.Resumed<*>) {
+                        YieldAndResumeStatus.Yield<T>(continuation)
+                    } else {
+                        throw IllegalStateException("required status is Resumed,but now is $status")
+                    }
+                }
 
-            override fun resumeWith(result: Result<R>) {
-                println("块协程终止")
+                if (pre is YieldAndResumeStatus.Resumed<*>) {
+                    (pre as YieldAndResumeStatus.Resumed<R>).resume(value)
+                }
             }
         }
-        )
+    }
 
-    private var continuation: Continuation<R>? = null
+    private var initValue: T? = null
+
+    @Volatile
+    private var status: YieldAndResumeStatus =
+        YieldAndResumeStatus.Created(continuation = suspend { scope.block(initValue!!) }.createCoroutine(
+            object : Continuation<Unit> {
+                override val context: CoroutineContext
+                    get() = EmptyCoroutineContext
+
+                override fun resumeWith(result: Result<Unit>) {
+                    println("块协程终止")
+                }
+            }
+        ))
 
     override fun resumeWith(result: Result<R>) {
+        status = YieldAndResumeStatus.Dead
         println("协程终止")
     }
 
@@ -122,18 +152,33 @@ class YieldAndResumeContinuation<T, R>(block: suspend YieldScope<T, R>.() -> R) 
      * 需要获得下游延续才能恢复，下游延续必须在 yield 的时候创建（获取），然后保存以供现在使用。
      */
     suspend fun resume(value: T): R {
-        return suspendCoroutine<R> {
-            scope.parent = it
-            //启动目标协程
-            if (scope.next == null) {
-                //初始协程
-                scope.initValue = value
-                initBlockContinuation.resume(Unit)
-            } else {
-                //yield的协程
-                scope.next?.resume(value)
+        return suspendCoroutine<R> { continuation ->
+            //先更新状态，再执行
+            val pre = statusUpdater.getAndUpdate(this) {
+                if (it is YieldAndResumeStatus.Created || it is YieldAndResumeStatus.Yield<*>) {
+                    YieldAndResumeStatus.Resumed(continuation)
+                } else {
+                    throw  IllegalStateException("resume时要求状态为 Created or Yield, current is $status")
+                }
+            }
+            if (pre is YieldAndResumeStatus.Created) {
+                //初始执行
+                initValue = value
+                pre.resume()
+            } else if (pre is YieldAndResumeStatus.Yield<*>) {
+                //yield恢复执行
+                (pre as YieldAndResumeStatus.Yield<T>).resume(value)
             }
         }
+    }
+
+    companion object {
+        private val statusUpdater =
+            java.util.concurrent.atomic.AtomicReferenceFieldUpdater.newUpdater(
+                YieldAndResumeContinuation::class.java,
+                YieldAndResumeStatus::class.java,
+                "status"
+            )
     }
 
 }
