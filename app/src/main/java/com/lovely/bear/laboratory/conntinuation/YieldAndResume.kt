@@ -92,7 +92,7 @@ interface YieldScope<T, R> {
      * 暂停当前协程，并返回入参
      * @param value 要传递出去的值
      */
-    suspend fun yield(value: R): T
+   public suspend fun yield(value: R): T
 }
 
 /**
@@ -101,13 +101,14 @@ interface YieldScope<T, R> {
  * @param T block初始参数和yield方法的返回值类型
  * @param R resume返回和yield方法传入参数类型
  */
-class YieldAndResumeContinuation<T, R>(block: suspend YieldScope<T, R>.(T) -> Unit) :
-    Continuation<R> {
+class YieldAndResumeContinuation<T, R>(
+    override val context: CoroutineContext = EmptyCoroutineContext,
+    block: suspend YieldScope<T, R>.(T) -> Unit
+) :
+    Continuation<R>,YieldScope<T, R> {
 
-    override val context: CoroutineContext
-        get() = EmptyCoroutineContext
-
-    private val scope: YieldScope<T, R> = object : YieldScope<T, R> {
+    /*为了能在Transfer 中挂起，这里开放了yield方法*/
+//    private val scope: YieldScope<T, R> = object : YieldScope<T, R> {
         override suspend fun yield(value: R): T {
             return suspendCoroutine<T> { continuation ->
                 //读取并更新，如果读取时状态异常，则抛出异常
@@ -124,13 +125,16 @@ class YieldAndResumeContinuation<T, R>(block: suspend YieldScope<T, R>.(T) -> Un
                 }
             }
         }
-    }
+//    }
 
     private var initValue: T? = null
 
     @Volatile
     private var status: YieldAndResumeStatus =
-        YieldAndResumeStatus.Created(continuation = suspend { scope.block(initValue!!) }.createCoroutine(
+        YieldAndResumeStatus.Created(continuation = suspend {
+//            scope.block(initValue!!)
+            block(initValue!!)
+        }.createCoroutine(
             object : Continuation<Unit> {
                 override val context: CoroutineContext
                     get() = EmptyCoroutineContext
