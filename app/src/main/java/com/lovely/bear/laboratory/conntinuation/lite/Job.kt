@@ -112,6 +112,10 @@ abstract class AbstractCoroutine<T>(context: CoroutineContext) : Job, Continuati
 
         newState.notifyCompletion(result)
         newState.clear()
+
+        (newState as CoroutineState.Complete<T>).exception?.let {
+            tryHandleException(it)
+        }
     }
 
     override fun cancel() {
@@ -167,7 +171,7 @@ abstract class AbstractCoroutine<T>(context: CoroutineContext) : Job, Continuati
                  * 如果外部协程已取消，则抛出取消异常
                  * 注意此处的 [coroutineContext] 取得的是调用join方法的外部协程的上下文
                  */
-                val currentCallingJobState = coroutineContext[Job]?.isActive?:return
+                val currentCallingJobState = coroutineContext[Job]?.isActive ?: return
                 if (!currentCallingJobState) {
                     throw CancellationException("Coroutine is cancelled")
                 }
@@ -175,6 +179,18 @@ abstract class AbstractCoroutine<T>(context: CoroutineContext) : Job, Continuati
             }
         }
 
+    }
+
+    private fun tryHandleException(e: Throwable): Boolean {
+        return if (e is CancellationException) {
+            false
+        } else {
+            handleJobException(e)
+        }
+    }
+
+    protected open fun handleJobException(e: Throwable): Boolean {
+        return false
     }
 }
 

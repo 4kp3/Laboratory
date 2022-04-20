@@ -45,4 +45,9 @@ class DeferredCoroutine<T>(context: CoroutineContext = EmptyCoroutineContext) :
             continuation.invokeOnCancellation { disposable.dispose() }
         }
     }
+
+    override fun resumeWith(result: Result<T>) {
+        super.resumeWith(result)
+        //由于调用者通过await方法获取返回值，所以在那里再抛出异常
+    }
 }

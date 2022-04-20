@@ -1,12 +1,23 @@
 package com.lovely.bear.laboratory.conntinuation.lite
 
+import java.lang.IllegalArgumentException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.startCoroutine
 
 fun main() {
-    launch(Dispatchers.DEFAULT) {
+    launch(Dispatchers.DEFAULT + object : CoroutineExceptionHandler {
+        override val key: CoroutineContext.Key<*>
+            get() = CoroutineExceptionHandler.Key
+
+        override fun handleException(context: CoroutineContext, e: Throwable): Boolean {
+            println("异常处理器捕获到异常：$e")
+            return true
+        }
+    }) {
         println("1")
+        throw IllegalArgumentException("ces ")
+        println("2")
     }
 }
 
