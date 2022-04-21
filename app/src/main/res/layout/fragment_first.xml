@@ -57,6 +57,15 @@
 
     <!--</androidx.constraintlayout.widget.ConstraintLayout>-->
 
+    <TextView
+        android:id="@+id/tv_confirm_alert"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="确认弹窗"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <com.lovely.bear.laboratory.CountProgress
         android:paddingHorizontal="25dp"
         android:id="@+id/progressView"

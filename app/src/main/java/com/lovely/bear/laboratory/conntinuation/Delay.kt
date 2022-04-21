@@ -9,7 +9,7 @@ import kotlin.coroutines.*
 suspend fun main() {
     suspend {
         println("start")
-        delay(1000)
+        delayCustom(1000)
         println("end")
     }.startCoroutine(object : Continuation<Unit> {
         override val context: CoroutineContext
@@ -25,7 +25,7 @@ suspend fun main() {
  * 协程的延迟功能
  * @author guoyixiong
  */
-suspend fun delay(timeMs: Long) {
+suspend fun delayCustom(timeMs: Long) {
     if (timeMs <= 0) return
     suspendCancellableCoroutine<Unit> {
         val future = delay_executor.schedule({

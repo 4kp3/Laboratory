@@ -5,9 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
-import com.example.myapplication.R
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.FragmentFirstBinding
+import com.lovely.bear.laboratory.conntinuation.view.alert
+import kotlinx.coroutines.*
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -24,10 +26,8 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,6 +39,12 @@ class FirstFragment : Fragment() {
 //        binding.progressView.setProgress(
 //            ProgressView.Progress(count = 1,total = 12,score = 0F,node = ProgressView.Progress.Node(a=74.3F,b=55F,c=20.9F))
 //        )
+        binding.tvConfirmAlert.setOnClickListener {
+            lifecycleScope.launch {
+                val ok = requireContext().alert("升职加薪", "是否要升职加薪？")
+                Toast.makeText(requireContext(), "$ok", Toast.LENGTH_SHORT).show()
+            }
+        }
         binding.progressView.setData(3.9F)
     }
 
