@@ -21,10 +21,16 @@ suspend fun Context.alert(title: CharSequence, message: String): Boolean? {
             }
         }
 
-        AlertDialog.Builder(this).setTitle(title).setMessage(message)
+        val dialog = AlertDialog.Builder(this).setTitle(title).setMessage(message)
             .setPositiveButton("确认", listener)
             .setNegativeButton("取消", listener)
             .setNeutralButton("不管", listener)
             .show()
+
+        continuation.invokeOnCancellation {
+            dialog.cancel()
+        }
+
+
     }
 }
