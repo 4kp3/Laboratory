@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory.conntinuation.lite
+package com.lovely.bear.laboratory.continuation.lite
 
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger

@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory.conntinuation.lite
+package com.lovely.bear.laboratory.continuation.lite
 
 import kotlin.coroutines.*
 import kotlin.coroutines.cancellation.CancellationException

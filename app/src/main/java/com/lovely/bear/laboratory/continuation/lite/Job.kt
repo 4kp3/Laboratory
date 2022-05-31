@@ -1,10 +1,7 @@
-package com.lovely.bear.laboratory.conntinuation.lite
+package com.lovely.bear.laboratory.continuation.lite
 
 import io.reactivex.rxjava3.disposables.Disposable
-import java.lang.IllegalStateException
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.*
-import kotlin.coroutines.cancellation.CancellationException
 
 interface Job : CoroutineContext.Element {
     companion object Key : CoroutineContext.Key<Job>

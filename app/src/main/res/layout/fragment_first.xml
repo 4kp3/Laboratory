@@ -57,20 +57,32 @@
 
     <!--</androidx.constraintlayout.widget.ConstraintLayout>-->
 
+
     <TextView
         android:id="@+id/tv_confirm_alert"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text="确认弹窗"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="确认弹窗"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_open_danmu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="打开弹幕"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_confirm_alert" />
 
     <com.lovely.bear.laboratory.CountProgress
-        android:paddingHorizontal="25dp"
         android:id="@+id/progressView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingHorizontal="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

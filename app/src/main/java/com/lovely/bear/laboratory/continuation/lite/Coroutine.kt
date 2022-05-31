@@ -1,6 +1,5 @@
-package com.lovely.bear.laboratory.conntinuation.lite
+package com.lovely.bear.laboratory.continuation.lite
 
-import kotlinx.coroutines.SupervisorJob
 import java.lang.IllegalArgumentException
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.*

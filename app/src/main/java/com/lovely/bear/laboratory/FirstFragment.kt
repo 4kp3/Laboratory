@@ -1,5 +1,6 @@
 package com.lovely.bear.laboratory
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,7 +9,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.FragmentFirstBinding
-import com.lovely.bear.laboratory.conntinuation.view.alert
+import com.lovely.bear.laboratory.continuation.view.alert
+import com.lovely.bear.laboratory.dan.mu.MainActivity
 import kotlinx.coroutines.*
 
 /**
@@ -44,6 +46,9 @@ class FirstFragment : Fragment() {
                 val ok = requireContext().alert("升职加薪", "是否要升职加薪？")
                 Toast.makeText(requireContext(), "$ok", Toast.LENGTH_SHORT).show()
             }
+        }
+        binding.tvOpenDanmu.setOnClickListener {
+            startActivity<MainActivity>(requireContext())
         }
         binding.progressView.setData(3.9F)
     }

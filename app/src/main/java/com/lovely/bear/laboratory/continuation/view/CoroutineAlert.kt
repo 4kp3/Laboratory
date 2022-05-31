@@ -1,9 +1,9 @@
-package com.lovely.bear.laboratory.conntinuation.view
+package com.lovely.bear.laboratory.continuation.view
 
 import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
-import com.lovely.bear.laboratory.conntinuation.lite.suspendCancellableCoroutine
+import com.lovely.bear.laboratory.continuation.lite.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 /**

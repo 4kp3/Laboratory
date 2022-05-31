@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory.conntinuation
+package com.lovely.bear.laboratory.continuation
 
 import kotlin.coroutines.*
 

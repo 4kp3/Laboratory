@@ -1,7 +1,6 @@
-package com.lovely.bear.laboratory.conntinuation
+package com.lovely.bear.laboratory.continuation
 
-import com.lovely.bear.laboratory.conntinuation.lite.CancellableContinuation
-import com.lovely.bear.laboratory.conntinuation.lite.suspendCancellableCoroutine
+import com.lovely.bear.laboratory.continuation.lite.suspendCancellableCoroutine
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.*
