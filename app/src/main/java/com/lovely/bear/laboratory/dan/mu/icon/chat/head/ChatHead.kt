@@ -1,9 +1,11 @@
-package com.lovely.bear.laboratory.dan.mu.icon
+package com.lovely.bear.laboratory.dan.mu.icon.chat.head
 
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
+import com.lovely.bear.laboratory.dan.mu.icon.image.IImage
+import com.lovely.bear.laboratory.dpToPx
 import master.flame.danmaku.danmaku.model.BaseDanmaku
 
 interface IChatHead : IImage {
@@ -18,12 +20,16 @@ enum class ChatType {
     EMPLOYEE //职员
 }
 
-class ChatHeadDan(bitmap: Bitmap, override val type: ChatType, res: Resources) : IChatHead {
-    override val width: Int
-        get() = 50
-    override val height: Int
-        get() = 50
-    override val drawable: Drawable = ChatHeadDrawable(bitmap, type, res, width, height)
+class ChatHeadDan(bitmap: Bitmap, override val type: ChatType, private val res: Resources) :
+    IChatHead {
+    override val drawablePadding: Int
+        get() = 0
+    override val drawableWidth: Int
+        get() = dpToPx(32F, res)
+    override val drawableHeight: Int
+        get() = dpToPx(32F, res)
+    override val drawable: Drawable =
+        ChatHeadDrawable(bitmap, type, res, drawableWidth, drawableHeight)
 }
 
 /**
@@ -36,12 +42,14 @@ class RemoteChatHeadDan(
     private val res: Resources,
     val danmu: BaseDanmaku,
 ) : IChatHead {
-    override val width: Int
-        get() = 50
-    override val height: Int
-        get() = 50
+    override val drawablePadding: Int
+        get() = 0
+    override val drawableWidth: Int
+        get() = dpToPx(32F, res)
+    override val drawableHeight: Int
+        get() = dpToPx(32F, res)
     private val default: ChatHeadDrawable =
-        ChatHeadDrawable(defaultBitmap, type, res, width, height)
+        ChatHeadDrawable(defaultBitmap, type, res, drawableWidth, drawableHeight)
     private var remoteDrawable: ChatHeadDrawable? = null
     internal var remoteBitmap: Bitmap? = null
         set(value) {
@@ -55,7 +63,7 @@ class RemoteChatHeadDan(
             } else if (remoteDrawable != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 remoteDrawable?.bitmap = value
             } else {
-                remoteDrawable = ChatHeadDrawable(value, type, res, width, height)
+                remoteDrawable = ChatHeadDrawable(value, type, res, drawableWidth, drawableHeight)
             }
         }
     override val drawable: Drawable

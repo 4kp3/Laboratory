@@ -1,13 +1,13 @@
-package com.lovely.bear.laboratory.dan.mu.icon
+package com.lovely.bear.laboratory.dan.mu.icon.chat.head
 
 import android.content.res.Resources
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.util.TypedValue
-import android.view.Gravity
 import com.example.myapplication.R
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * todo 使用缓冲池
@@ -15,12 +15,27 @@ import kotlin.math.min
  * @author guoyixiong
  */
 class ChatHeadDrawable(
-    icon: Bitmap,
+    bitmap: Bitmap,
     type: ChatType,
-    res: Resources,
+    private val res: Resources,
     val width: Int,
     val height: Int
-) : BitmapDrawable(res, icon) {
+) : Drawable() {
+
+    private val drawMatrix = Matrix()
+
+    //private var bitmapDestRect: Rect = Rect()
+    private var bitmapBoundsDirty = true
+    var bitmap: Bitmap = bitmap
+        set(value) {
+            field = value
+            bitmapBoundsDirty = true
+            if (isFirstSet) {
+                isFirstSet = false
+            } else invalidateSelf()
+        }
+
+    private val bitmapPaint = Paint()
 
     var type: ChatType = type
         set(value) {
@@ -53,18 +68,42 @@ class ChatHeadDrawable(
         strokeWidth = borderWidth
     }
 
-    private var rectDirty = true
+    private var employeeRectDirty = true
 
     private val employeeIconRect = Rect()
 
     init {
         loadEmployeeIcon(res)
-        //设置头像居中
-        gravity = Gravity.CENTER
+    }
+
+    private var isFirstSet = true
+
+    override fun setAlpha(alpha: Int) {
+        if (bitmapPaint.alpha != alpha || decoratePaint.alpha != alpha) {
+            bitmapPaint.alpha = alpha
+            decoratePaint.alpha = alpha
+            invalidateSelf()
+        }
+    }
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        bitmapPaint.colorFilter = colorFilter
+        decoratePaint.colorFilter = colorFilter
+        invalidateSelf()
+    }
+
+    override fun getOpacity(): Int {
+        return if (bitmap.hasAlpha() || bitmapPaint.alpha < 255) PixelFormat.TRANSLUCENT else PixelFormat.OPAQUE
     }
 
     override fun draw(canvas: Canvas) {
-        super.draw(canvas)
+//        val saveCount = canvas.saveCount
+//        canvas.save()
+        //canvas.concat(drawMatrix)
+        updateBitmapBoundsIfDirty()
+        canvas.drawBitmap(bitmap, drawMatrix, bitmapPaint)
+//        canvas.restoreToCount(saveCount)
+
         //绘制装饰
         decoratePaint.color = borderColor
 
@@ -86,17 +125,34 @@ class ChatHeadDrawable(
         return min(bounds.height() / 2F, bounds.width() / 2F)
     }
 
-//    private fun updateImageRect() {
-//        val bounds = bounds
-//        val layoutDirection = layoutDirection
-//        Gravity.apply(
-//            Gravity.CENTER, width, height,
-//            bounds, mDstRect, layoutDirection
-//        )
-//    }
+    private fun updateBitmapBoundsIfDirty() {
+        if (bitmapBoundsDirty) {
+            val bitmapWidth: Int = bitmap.width
+            val bitmapHeight: Int = bitmap.height
+            val bounds = bounds
+
+            val dWidth: Int = bounds.width()
+            val dHeight: Int = bounds.height()
+            val scale: Float
+            var dx = 0f
+            var dy = 0f
+
+            if (bitmapWidth * dHeight > dWidth * bitmapHeight) {
+                scale = dHeight.toFloat() / bitmapHeight.toFloat()
+                dx = (dWidth - bitmapWidth * scale) * 0.5f
+            } else {
+                scale = dWidth.toFloat() / bitmapWidth.toFloat()
+                dy = (dHeight - bitmapHeight * scale) * 0.5f
+            }
+
+            drawMatrix.setScale(scale, scale)
+            drawMatrix.postTranslate(dx.roundToInt().toFloat(), dy.roundToInt().toFloat())
+        }
+        bitmapBoundsDirty = false
+    }
 
     private fun updateEmployeeRectIfDirty() {
-        if (rectDirty) {
+        if (employeeRectDirty) {
             //初始化员工标签
             if (!employeeIconReady) {
                 Log.e(tag, "icon未初始化！")
@@ -113,20 +169,20 @@ class ChatHeadDrawable(
             val b = t + employeeIconHeight
             employeeIconRect.set(l, t, r, b)
         }
-        rectDirty = false
+        employeeRectDirty = false
     }
 
     override fun onBoundsChange(bounds: Rect?) {
         super.onBoundsChange(bounds)
-        rectDirty = true
+        employeeRectDirty = true
     }
 
     override fun getIntrinsicWidth(): Int {
-        return width
+        return -1
     }
 
     override fun getIntrinsicHeight(): Int {
-        return height
+        return -1
     }
 
 
@@ -172,7 +228,7 @@ class ChatHeadDrawable(
                     Log.d(
                         tag, """
                     Bitmap图像尺寸：width=${employeeIcon.width},height=${employeeIcon.height}
-                    缩放到当前密度（$targetDensityDpi）后的尺寸：width=${employeeIconWidth},height=${employeeIconHeight}
+                    缩放到当前密度（$targetDensityDpi）后的尺寸：width=$employeeIconWidth,height=$employeeIconHeight
                     缩放值应该要小于图像尺寸值，因为图像位于xxxhdpi，而当前手机屏幕是xxhdpi
                 """.trimIndent()
                     )

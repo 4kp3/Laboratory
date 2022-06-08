@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory.dan.mu.icon
+package com.lovely.bear.laboratory.dan.mu.icon.chat.head
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -17,8 +17,8 @@ import kotlin.coroutines.resumeWithException
  */
 class RemoteChatHeadLoader(
     parentJob: Job? = null,
+    context: Context,
     private val loadCallback: ((RemoteChatHeadDan, Boolean) -> Unit)? = null,
-    context: Context
 ) {
 
     private val appContext = context.applicationContext
@@ -32,7 +32,7 @@ class RemoteChatHeadLoader(
         scope.launch {
             val future =
                 Glide.with(appContext).asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .load(dan.url).submit(dan.width, dan.height)
+                    .load(dan.url).submit(dan.drawableWidth, dan.drawableHeight)
             val bitmap = kotlinx.coroutines.suspendCancellableCoroutine<Bitmap> {
                 it.invokeOnCancellation { future.cancel(true) }
                 try {
