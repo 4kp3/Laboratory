@@ -244,7 +244,7 @@ class DanmuActivity : AppCompatActivity(), View.OnClickListener {
         }
         mDanmakuView.prepare(mParser, mContext)
         mDanmakuView.showFPS(true)
-        mDanmakuView.enableDanmakuDrawingCache(true)
+        mDanmakuView.enableDanmakuDrawingCache(false)
         mVideoView.setOnPreparedListener { mediaPlayer -> mediaPlayer.start() }
         mVideoView.setVideoPath(Environment.getExternalStorageDirectory().toString() + "/1.flv")
     }
@@ -356,7 +356,7 @@ class DanmuActivity : AppCompatActivity(), View.OnClickListener {
         danmaku.priority = 0 // 可能会被各种过滤器过滤并隐藏显示
         danmaku.isLive = islive
         danmaku.time = mDanmakuView.currentTime + 1200
-        danmaku.textSize = 30F
+        danmaku.textSize = 60F
         danmaku.textColor = Color.WHITE
         //danmaku.textShadowColor = Color.WHITE
         // danmaku.underlineColor = Color.GREEN;

@@ -83,8 +83,8 @@ class R2LImageDanmu(
             padding：paddingStart=$paddingStart,paddingTop=$paddingTop,paddingEnd=$paddingEnd,paddingBottom=$paddingBottom
             minPaddingTop=$minPaddingTop,drawableTop=$drawableTop,textTop=$textTop
             image:width=${image.width},drawableWidth=${image.drawableWidth},drawableHeight=${image.drawableWidth}${image.drawableHeight},drawablePadding=${image.drawablePadding}
-            text：paintWidth=$paintWidth,paintHeight=${paintHeight}
-            danmu:width=$width,height=$height
+            text：paintWidth=$paintWidth,paintHeight=${paintHeight}，text=$text
+            danmu:width=$width,height=$height，
         """.trimIndent()
         )
     }
