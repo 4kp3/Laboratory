@@ -8,10 +8,12 @@
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.227" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3632993512511585" />
         <entry key="app/src/main/res/layout/activity_main_danmu.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/layout/activity_main_danmu2.xml" value="0.25052083333333336" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/layout/layout_view_cache.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/layout/media_controller.xml" value="0.17604166666666668" />
+        <entry key="app/src/main/res/layout/media_controller2.xml" value="0.25052083333333336" />
         <entry key="app/src/main/res/menu/main.xml" value="0.37604166666666666" />
       </map>
     </option>

@@ -1,6 +1,6 @@
-package com.lovely.bear.laboratory.dan.mu.icon.chat.head
+package com.lovely.bear.laboratory.dan.mu.head
 
-import com.lovely.bear.laboratory.dan.mu.icon.image.R2LImageDanmu
+import master.flame.danmaku.danmaku.model.image.R2LImageDanmu
 import master.flame.danmaku.danmaku.model.BaseDanmaku
 import master.flame.danmaku.danmaku.model.android.BaseCacheStuffer
 
@@ -14,8 +14,8 @@ class ChatHeadStufferProxy(val imageLoader: RemoteChatHeadLoader) : BaseCacheStu
      */
     override fun prepareDrawing(danmaku: BaseDanmaku, fromWorkerThread: Boolean) {
         if (danmaku is R2LImageDanmu) {
-            if (danmaku.image is RemoteChatHeadDan) {
-                imageLoader.load(danmaku.image)
+            (danmaku.image as? RemoteChatHeadDan)?.let {
+                imageLoader.load(it)
             }
         }
     }

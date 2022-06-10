@@ -28,6 +28,10 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="landscape"
             android:theme="@style/Fullscreen" />
+
+        <activity
+            android:name="com.lovely.bear.laboratory.dan.mu.Danmu2Activity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
     </application>
 
 </manifest>

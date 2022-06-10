@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.FragmentFirstBinding
 import com.lovely.bear.laboratory.continuation.view.alert
+import com.lovely.bear.laboratory.dan.mu.Danmu2Activity
 import com.lovely.bear.laboratory.dan.mu.DanmuActivity
 import kotlinx.coroutines.*
 
@@ -48,6 +49,9 @@ class FirstFragment : Fragment() {
         }
         binding.tvOpenDanmu.setOnClickListener {
             startActivity<DanmuActivity>(requireContext())
+        }
+        binding.tvOpenDanmu2.setOnClickListener {
+            startActivity<Danmu2Activity>(requireContext())
         }
         binding.progressView.setData(3.9F)
     }

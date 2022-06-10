@@ -2,13 +2,13 @@ package com.lovely.bear.laboratory.dan.mu
 
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Environment
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.TextPaint
 import android.text.style.BackgroundColorSpan
 import android.text.style.ImageSpan
 import android.util.Log
@@ -18,9 +18,13 @@ import android.widget.Button
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.R
-import com.lovely.bear.laboratory.dan.mu.icon.chat.head.*
-import com.lovely.bear.laboratory.dan.mu.icon.image.R2LImageDanmu
+import com.lovely.bear.laboratory.dan.mu.head.ChatType
+import com.lovely.bear.laboratory.dan.mu.head.RemoteChatHeadDan
 import com.lovely.bear.laboratory.dpToPx
+import com.lovely.bear.laboratory.getTextSizeByHeight
+import com.lovely.bear.laboratory.dan.mu.head.ChatHeadCacheStuffer
+import com.lovely.bear.laboratory.dan.mu.head.ChatHeadStufferProxy
+import com.lovely.bear.laboratory.dan.mu.head.RemoteChatHeadLoader
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.controller.IDanmakuView
 import master.flame.danmaku.controller.IDanmakuView.OnDanmakuClickListener
@@ -32,7 +36,7 @@ import master.flame.danmaku.danmaku.model.IDanmakus
 import master.flame.danmaku.danmaku.model.IDisplayer
 import master.flame.danmaku.danmaku.model.android.DanmakuContext
 import master.flame.danmaku.danmaku.model.android.Danmakus
-import master.flame.danmaku.danmaku.model.android.SpannedCacheStuffer
+import master.flame.danmaku.danmaku.model.image.R2LImageDanmu
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser
 import master.flame.danmaku.danmaku.util.SystemClock
 import java.io.InputStream
@@ -53,112 +57,10 @@ class DanmuActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mContext: DanmakuContext
     private lateinit var mRemoteImageLoader: RemoteChatHeadLoader
 
-//    private val mCacheStufferAdapter: BaseCacheStuffer.Proxy = object : BaseCacheStuffer.Proxy() {
-//        private var mDrawable: Drawable? = null
-//        override fun prepareDrawing(danmaku: BaseDanmaku, fromWorkerThread: Boolean) {
-//            if (danmaku.text is Spanned) { // 根据你的条件检查是否需要需要更新弹幕
-//                // FIXME 这里只是简单启个线程来加载远程url图片，请使用你自己的异步线程池，最好加上你的缓存池
-//                object : Thread() {
-//                    override fun run() {
-//                        val url = "http://www.bilibili.com/favicon.ico"
-//                        var inputStream: InputStream? = null
-//                        var drawable = mDrawable
-//                        if (drawable == null) {
-//                            try {
-//                                val urlConnection = URL(url).openConnection()
-//                                inputStream = urlConnection.getInputStream()
-//                                drawable = BitmapDrawable.createFromStream(inputStream, "bitmap")
-//                                mDrawable = drawable
-//                            } catch (e: MalformedURLException) {
-//                                e.printStackTrace()
-//                            } catch (e: IOException) {
-//                                e.printStackTrace()
-//                            } finally {
-//                                IOUtils.closeQuietly(inputStream)
-//                            }
-//                        }
-//                        if (drawable != null) {
-//                            drawable.setBounds(0, 0, 100, 100)
-//                            val spannable = createSpannable(drawable)
-//                            danmaku.text = spannable
-//                            if (mDanmakuView != null) {
-//                                mDanmakuView!!.invalidateDanmaku(danmaku, false)
-//                            }
-//                            return
-//                        }
-//                    }
-//                }.start()
-//            }
-//        }
-//
-//        override fun releaseResource(danmaku: BaseDanmaku) {
-//            // TODO 重要:清理含有ImageSpan的text中的一些占用内存的资源 例如drawable
-//        }
-//    }
-
-    /**
-     * 绘制背景(自定义弹幕样式)
-     */
-    private class BackgroundCacheStuffer : SpannedCacheStuffer() {
-        // 通过扩展SimpleTextCacheStuffer或SpannedCacheStuffer个性化你的弹幕样式
-        val paint = Paint()
-        override fun measure(danmaku: BaseDanmaku, paint: TextPaint, fromWorkerThread: Boolean) {
-            danmaku.padding = 10 // 在背景绘制模式下增加padding
-            super.measure(danmaku, paint, fromWorkerThread)
-        }
-
-        public override fun drawBackground(
-            danmaku: BaseDanmaku,
-            canvas: Canvas,
-            left: Float,
-            top: Float
-        ) {
-            paint.color = -0x7edacf65
-            canvas.drawRect(
-                left + 2,
-                top + 2,
-                left + danmaku.paintWidth - 2,
-                top + danmaku.paintHeight - 2,
-                paint
-            )
-        }
-
-        override fun drawStroke(
-            danmaku: BaseDanmaku,
-            lineText: String,
-            canvas: Canvas,
-            left: Float,
-            top: Float,
-            paint: Paint
-        ) {
-            // 禁用描边绘制
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_danmu)
         findViews()
-    }
-
-    private fun createParser(stream: InputStream?): BaseDanmakuParser {
-        if (stream == null) {
-            return object : BaseDanmakuParser() {
-                override fun parse(): Danmakus {
-                    return Danmakus()
-                }
-            }
-        }
-        val loader = DanmakuLoaderFactory.create(DanmakuLoaderFactory.TAG_BILI)
-        try {
-            loader.load(stream)
-        } catch (e: IllegalDataException) {
-            e.printStackTrace()
-        }
-        val parser: BaseDanmakuParser = BiliDanmukuParser()
-        val dataSource = loader.dataSource
-        parser.load(dataSource)
-        return parser
     }
 
     private fun findViews() {
@@ -209,7 +111,8 @@ class DanmuActivity : AppCompatActivity(), View.OnClickListener {
             //        .setCacheStuffer(new BackgroundCacheStuffer())  // 绘制背景使用BackgroundCacheStuffer
             .setMaximumLines(maxLinesPair)
             .preventOverlapping(overlappingEnablePair).setDanmakuMargin(40)
-        //mParser = createParser(this.resources.openRawResource(R.raw.comments))
+
+//        mParser = createParser(this.resources.openRawResource(R.raw.comments))
         mParser = createParser(null)
         mDanmakuView.setCallback(object : DrawHandler.Callback {
             override fun updateTimer(timer: DanmakuTimer) {}
@@ -244,9 +147,32 @@ class DanmuActivity : AppCompatActivity(), View.OnClickListener {
         }
         mDanmakuView.prepare(mParser, mContext)
         mDanmakuView.showFPS(true)
-        mDanmakuView.enableDanmakuDrawingCache(false)
+        mDanmakuView.enableDanmakuDrawingCache(true)
         mVideoView.setOnPreparedListener { mediaPlayer -> mediaPlayer.start() }
-        mVideoView.setVideoPath(Environment.getExternalStorageDirectory().toString() + "/1.flv")
+        //mVideoView.setVideoPath(Environment.getExternalStorageDirectory().toString() + "/1.flv")
+
+        //如果使用了padding，缩放开启后会影响预期效果
+        mContext.setScaleTextSize(1F)
+    }
+
+    private fun createParser(stream: InputStream?): BaseDanmakuParser {
+        if (stream == null) {
+            return object : BaseDanmakuParser() {
+                override fun parse(): Danmakus {
+                    return Danmakus()
+                }
+            }
+        }
+        val loader = DanmakuLoaderFactory.create(DanmakuLoaderFactory.TAG_BILI)
+        try {
+            loader.load(stream)
+        } catch (e: IllegalDataException) {
+            e.printStackTrace()
+        }
+        val parser: BaseDanmakuParser = BiliDanmukuParser()
+        val dataSource = loader.dataSource
+        parser.load(dataSource)
+        return parser
     }
 
     override fun onPause() {
@@ -334,30 +260,38 @@ class DanmuActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private lateinit var defaultIconBitmap: Bitmap
+
     private fun addDanmaku(islive: Boolean) {
         //val danmaku = mContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL) ?: return
 
         if (!this::defaultIconBitmap.isInitialized) {
             defaultIconBitmap = BitmapFactory.decodeResource(resources, R.drawable.img)
         }
-
+        val image = RemoteChatHeadDan(
+            "https://photo.16pic.com/00/90/18/16pic_9018257_b.jpg",
+            defaultIconBitmap,
+            ChatType.NORMAL,
+            resources,
+        )
         val danmaku = R2LImageDanmu(
-            ChatHeadDan(defaultIconBitmap, ChatType.EMPLOYEE, resources),
-            dpToPx(40F, this),
-            dpToPx(10F, this),
-            dpToPx(14.5F, this),
-            dpToPx(10F, this),
+            image,
             mContext.mDanmakuFactory.MAX_Duration_Scroll_Danmaku,
         )
+        image.danmu = danmaku
+
+        val textHeight = dpToPx(12F, applicationContext) * 1F
+        danmaku.size.apply {
+            paddingStart = dpToPx(40F, applicationContext)
+            paddingEnd = dpToPx(14.5F, applicationContext)
+            setVerticalPadding(dpToPx(10F, applicationContext))
+        }
 
         danmaku.text = "这是一条弹幕" + System.nanoTime()
-        //danmaku.paddingEnd =
-        //danmaku.padding = 5
         danmaku.priority = 0 // 可能会被各种过滤器过滤并隐藏显示
         danmaku.isLive = islive
         danmaku.time = mDanmakuView.currentTime + 1200
-        danmaku.textSize = 60F
-        danmaku.textColor = Color.WHITE
+        danmaku.textSize = getTextSizeByHeight(textHeight)
+        danmaku.textColor = Color.BLACK
         //danmaku.textShadowColor = Color.WHITE
         // danmaku.underlineColor = Color.GREEN;
         danmaku.borderColor = Color.GREEN
@@ -370,7 +304,7 @@ class DanmuActivity : AppCompatActivity(), View.OnClickListener {
         drawable.setBounds(0, 0, 100, 100)
         val spannable = createSpannable(drawable)
         danmaku.text = spannable
-        danmaku.padding = 5
+        //danmaku.padding = 5
         danmaku.priority = 1 // 一定会显示, 一般用于本机发送的弹幕
         danmaku.isLive = islive
         danmaku.time = mDanmakuView.currentTime + 1200

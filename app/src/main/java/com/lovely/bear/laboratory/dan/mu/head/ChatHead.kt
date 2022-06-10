@@ -1,12 +1,11 @@
-package com.lovely.bear.laboratory.dan.mu.icon.chat.head
+package com.lovely.bear.laboratory.dan.mu.head
 
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.os.Build
-import com.lovely.bear.laboratory.dan.mu.icon.image.IImage
 import com.lovely.bear.laboratory.dpToPx
 import master.flame.danmaku.danmaku.model.BaseDanmaku
+import master.flame.danmaku.danmaku.model.image.IImage
 
 interface IChatHead : IImage {
     val type: ChatType
@@ -32,16 +31,16 @@ class ChatHeadDan(bitmap: Bitmap, override val type: ChatType, private val res: 
         ChatHeadDrawable(bitmap, type, res, drawableWidth, drawableHeight)
 }
 
-/**
- * @param danmu 头像所属弹幕，用于更新
- */
 class RemoteChatHeadDan(
     val url: String,
     defaultBitmap: Bitmap,
     override val type: ChatType,
     private val res: Resources,
-    val danmu: BaseDanmaku,
 ) : IChatHead {
+    /**
+     * 头像所属弹幕，用于更新
+     */
+    var danmu: BaseDanmaku? = null
     override val drawablePadding: Int
         get() = 0
     override val drawableWidth: Int
@@ -60,7 +59,7 @@ class RemoteChatHeadDan(
             }
             if (value == null) {
                 remoteDrawable = null
-            } else if (remoteDrawable != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            } else if (remoteDrawable != null) {
                 remoteDrawable?.bitmap = value
             } else {
                 remoteDrawable = ChatHeadDrawable(value, type, res, drawableWidth, drawableHeight)

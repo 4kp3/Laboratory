@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory.dan.mu.icon.chat.head
+package com.lovely.bear.laboratory.dan.mu.head
 
 import android.content.res.Resources
 import android.graphics.*
@@ -35,7 +35,7 @@ class ChatHeadDrawable(
             } else invalidateSelf()
         }
 
-    private val bitmapPaint = Paint()
+    private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     var type: ChatType = type
         set(value) {
@@ -64,8 +64,9 @@ class ChatHeadDrawable(
     /**
      * 装饰画笔
      */
-    private val decoratePaint: Paint = Paint().apply {
+    private val decoratePaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = borderWidth
+        style = Paint.Style.STROKE
     }
 
     private var employeeRectDirty = true
@@ -92,25 +93,34 @@ class ChatHeadDrawable(
         invalidateSelf()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getOpacity(): Int {
         return if (bitmap.hasAlpha() || bitmapPaint.alpha < 255) PixelFormat.TRANSLUCENT else PixelFormat.OPAQUE
     }
 
+    private val circlePath = Path()
+
     override fun draw(canvas: Canvas) {
-//        val saveCount = canvas.saveCount
-//        canvas.save()
-        //canvas.concat(drawMatrix)
         updateBitmapBoundsIfDirty()
+
+        val radius = getRadius()
+        val cx = bounds.exactCenterX()
+        val cy = bounds.exactCenterY()
+        circlePath.reset()
+        circlePath.addCircle(cx, cy, radius-borderWidth/2, Path.Direction.CW)
+        canvas.save()
+        circlePath.fillType = Path.FillType.EVEN_ODD
+        canvas.clipPath(circlePath)
         canvas.drawBitmap(bitmap, drawMatrix, bitmapPaint)
-//        canvas.restoreToCount(saveCount)
+        canvas.restore()
 
         //绘制装饰
         decoratePaint.color = borderColor
 
         canvas.drawCircle(
-            bounds.exactCenterX(),
-            bounds.exactCenterY(),
-            min(bounds.height() / 2F, bounds.width() / 2F),
+            cx,
+            cy,
+            radius - borderWidth/2,
             decoratePaint
         )
 
@@ -146,7 +156,10 @@ class ChatHeadDrawable(
             }
 
             drawMatrix.setScale(scale, scale)
-            drawMatrix.postTranslate(dx.roundToInt().toFloat(), dy.roundToInt().toFloat())
+            drawMatrix.postTranslate(
+                bounds.left + dx.roundToInt().toFloat(),
+                bounds.top + dy.roundToInt().toFloat()
+            )
         }
         bitmapBoundsDirty = false
     }
@@ -175,6 +188,7 @@ class ChatHeadDrawable(
     override fun onBoundsChange(bounds: Rect?) {
         super.onBoundsChange(bounds)
         employeeRectDirty = true
+        bitmapBoundsDirty = true
     }
 
     override fun getIntrinsicWidth(): Int {
