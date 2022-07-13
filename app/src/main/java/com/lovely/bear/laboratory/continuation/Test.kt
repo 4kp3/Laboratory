@@ -2,6 +2,8 @@ package com.lovely.bear.laboratory.continuation
 
 //import kotlinx.coroutines.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 
 suspend fun main() {
 
@@ -87,9 +89,17 @@ suspend fun main() {
 //        }
 //    }.joinAll()
 //    println(count)
-    val count=0
-    val result=count+ List(1000) {
-        GlobalScope.async { 1 }
-    }.sumOf { it.await() }
-    println(result)
+//    val count=0
+//    val result=count+ List(1000) {
+//        GlobalScope.async { 1 }
+//    }.sumOf { it.await() }
+//    println(result)
+    flow<Int> {
+//        emit(1)
+        throw IllegalArgumentException("000")
+    }.catch { cause ->
+        print("捕获到异常")
+    }.collect { result ->
+        print("拿到结果:$result")
+    }
 }

@@ -11,6 +11,9 @@ import com.example.myapplication.databinding.FragmentFirstBinding
 import com.lovely.bear.laboratory.continuation.view.alert
 import com.lovely.bear.laboratory.dan.mu.Danmu2Activity
 import com.lovely.bear.laboratory.dan.mu.DanmuActivity
+import com.lovely.bear.laboratory.https.initOk
+import com.lovely.bear.laboratory.https.okHttpClient
+import com.lovely.bear.laboratory.https.testOkSSL
 import kotlinx.coroutines.*
 
 /**
@@ -53,7 +56,16 @@ class FirstFragment : Fragment() {
         binding.tvOpenDanmu2.setOnClickListener {
             startActivity<Danmu2Activity>(requireContext())
         }
+        binding.tvSsl.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                initOk()
+                if (okHttpClient != null) {
+                    testOkSSL(okHttpClient!!)
+                }
+            }
+        }
         binding.progressView.setData(3.9F)
+        binding.iv.background = Tag("优质", requireContext().resources)
     }
 
     override fun onResume() {
