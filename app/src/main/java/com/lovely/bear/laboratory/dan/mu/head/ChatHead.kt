@@ -3,7 +3,7 @@ package com.lovely.bear.laboratory.dan.mu.head
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import com.lovely.bear.laboratory.dpToPx
+import com.lovely.bear.laboratory.util.dpToPx
 import master.flame.danmaku.danmaku.model.BaseDanmaku
 import master.flame.danmaku.danmaku.model.image.IImage
 

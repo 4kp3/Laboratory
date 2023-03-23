@@ -20,8 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.R
 import com.lovely.bear.laboratory.dan.mu.head.ChatType
 import com.lovely.bear.laboratory.dan.mu.head.RemoteChatHeadDan
-import com.lovely.bear.laboratory.dpToPx
-import com.lovely.bear.laboratory.getTextSizeByHeight
+import com.lovely.bear.laboratory.util.dpToPx
+import com.lovely.bear.laboratory.util.getTextSizeByHeight
 import com.lovely.bear.laboratory.dan.mu.head.ChatHeadCacheStuffer
 import com.lovely.bear.laboratory.dan.mu.head.ChatHeadStufferProxy
 import com.lovely.bear.laboratory.dan.mu.head.RemoteChatHeadLoader

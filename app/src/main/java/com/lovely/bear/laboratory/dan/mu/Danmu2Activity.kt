@@ -20,10 +20,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenResumed
 import com.example.myapplication.R
-import com.lovely.bear.laboratory.clip
+import com.lovely.bear.laboratory.util.clip
 import com.lovely.bear.laboratory.dan.mu.head.*
-import com.lovely.bear.laboratory.dpToPx
-import com.lovely.bear.laboratory.getTextSizeByHeight
+import com.lovely.bear.laboratory.util.dpToPx
+import com.lovely.bear.laboratory.util.getTextSizeByHeight
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

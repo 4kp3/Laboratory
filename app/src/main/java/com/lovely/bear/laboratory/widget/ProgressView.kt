@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory
+package com.lovely.bear.laboratory.widget
 
 import android.content.Context
 import android.graphics.*

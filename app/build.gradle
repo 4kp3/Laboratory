@@ -9,11 +9,16 @@ android {
     defaultConfig {
         applicationId 'com.lovely.bear.laboratory'
         minSdk 28
-        targetSdk 30
+        targetSdk 28
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
     }
 
     buildTypes {
@@ -31,6 +36,13 @@ android {
     }
     buildFeatures {
         viewBinding true
+    }
+    namespace 'com.example.myapplication'
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
+        }
     }
 }
 
@@ -51,6 +63,15 @@ dependencies {
     //ui
     implementation("io.coil-kt:coil:2.0.0-rc03")
 
+
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
+
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -64,8 +85,4 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.13.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
 
-    //net
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
 }
-

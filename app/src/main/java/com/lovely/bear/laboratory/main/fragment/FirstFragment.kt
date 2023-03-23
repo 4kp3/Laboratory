@@ -1,11 +1,11 @@
-package com.lovely.bear.laboratory
+package com.lovely.bear.laboratory.main.fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.FragmentFirstBinding
 import com.lovely.bear.laboratory.continuation.view.alert
@@ -14,7 +14,11 @@ import com.lovely.bear.laboratory.dan.mu.DanmuActivity
 import com.lovely.bear.laboratory.https.initOk
 import com.lovely.bear.laboratory.https.okHttpClient
 import com.lovely.bear.laboratory.https.testOkSSL
-import kotlinx.coroutines.*
+import com.lovely.bear.laboratory.launch.LaunchTestStandardActivity
+import com.lovely.bear.laboratory.main.SecondActivity
+import com.lovely.bear.laboratory.widget.TagDrawable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -44,6 +48,13 @@ class FirstFragment : Fragment() {
 //        binding.progressView.setProgress(
 //            ProgressView.Progress(count = 1,total = 12,score = 0F,node = ProgressView.Progress.Node(a=74.3F,b=55F,c=20.9F))
 //        )
+        binding.toolbar.toolbarViewGroup.setOnClickListener {
+            if (binding.toolbar2ViewStub.parent != null) {
+                binding.toolbar2ViewStub.inflate()
+            }
+        }
+
+        //binding.toolbar.toolbarViewGroup.viewTreeObserver.addOnGlobalFocusChangeListener()
         binding.tvConfirmAlert.setOnClickListener {
             lifecycleScope.launch {
                 val ok = requireContext().alert("升职加薪", "是否要升职加薪？")
@@ -51,10 +62,10 @@ class FirstFragment : Fragment() {
             }
         }
         binding.tvOpenDanmu.setOnClickListener {
-            startActivity<DanmuActivity>(requireContext())
+            com.lovely.bear.laboratory.util.startActivity<DanmuActivity>(requireContext())
         }
         binding.tvOpenDanmu2.setOnClickListener {
-            startActivity<Danmu2Activity>(requireContext())
+            com.lovely.bear.laboratory.util.startActivity<Danmu2Activity>(requireContext())
         }
         binding.tvSsl.setOnClickListener {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -65,7 +76,16 @@ class FirstFragment : Fragment() {
             }
         }
         binding.progressView.setData(3.9F)
-        binding.iv.background = Tag("优质", requireContext().resources)
+        binding.iv.background = TagDrawable("优质", requireContext().resources)
+
+        binding.tvStartSecond.setOnClickListener {
+            com.lovely.bear.laboratory.util.startActivity<SecondActivity>(requireContext())
+        }
+
+        binding.tvStartStandardActivity.setOnClickListener {
+            com.lovely.bear.laboratory.util.startActivity<LaunchTestStandardActivity>(requireContext())
+        }
+
     }
 
     override fun onResume() {

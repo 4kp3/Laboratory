@@ -1,14 +1,12 @@
-package com.lovely.bear.laboratory
+package com.lovely.bear.laboratory.widget
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import com.example.myapplication.R
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.reflect.KClass

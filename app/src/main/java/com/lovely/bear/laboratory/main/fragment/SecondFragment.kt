@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory
+package com.lovely.bear.laboratory.main.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

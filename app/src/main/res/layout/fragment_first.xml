@@ -4,59 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.lovely.bear.laboratory.FirstFragment">
+    tools:context="com.lovely.bear.laboratory.main.fragment.FirstFragment">
 
-    <!--    <com.example.myapplication.AnnouncementView-->
-    <!--        android:id="@+id/textview_first"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="智慧难以界定，但不知何故，当我们看到它时却能够知道这就是智慧。智者在危机中能够保持冷静。他们可以退后一步，统观全局。他们深思熟虑，自我反省。他们认可自己知识的局限，"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/button_first"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent" />-->
-    <!--<androidx.constraintlayout.widget.ConstraintLayout-->
-    <!--    android:layout_width="match_parent"-->
-    <!--    app:layout_constraintStart_toStartOf="parent"-->
-    <!--    app:layout_constraintEnd_toEndOf="parent"-->
-    <!--    app:layout_constraintTop_toTopOf="parent"-->
-    <!--    app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--    android:layout_height="wrap_content">-->
+    <LinearLayout
+        android:id="@+id/ll"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!--    <TextView-->
-    <!--        android:id="@+id/textview_first2"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:ellipsize="marquee"-->
-    <!--        android:maxLines="1"-->
-    <!--        android:singleLine="true"-->
-    <!--        android:text="智慧难以界定，但不知何故，当我们看到它时却能够知道这就是智慧。智者在危机中能够保持冷静。他们可以退后一步，统观全局。他们深思熟虑，自我反省。他们认可自己知识的局限，"-->
-    <!--        android:visibility="invisible"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/boring_tool_bar" />
 
-    <!--    <Button-->
-    <!--        android:id="@+id/button_first"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="@string/next"-->
-    <!--        android:visibility="invisible"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/textview_first2" />-->
+        <ViewStub
+            android:id="@+id/toolbar2_viewStub"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout="@layout/a_very_complex_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!--    <com.lovely.bear.laboratory.ProgressView-->
-    <!--        android:id="@+id/progress_view"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/button_first" />-->
+        <TextView
+            android:id="@+id/tv_start_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="打开第二个页面"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_open_danmu2" />
 
-    <!--</androidx.constraintlayout.widget.ConstraintLayout>-->
-
+        <TextView
+            android:id="@+id/tv_start_standard_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="打开启动模式【标准】页面"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_open_danmu2" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_confirm_alert"
@@ -66,7 +56,7 @@
         android:text="确认弹窗"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/ll" />
 
     <TextView
         android:id="@+id/tv_open_danmu"
@@ -105,7 +95,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_ssl" />
 
-    <com.lovely.bear.laboratory.CountProgress
+    <com.lovely.bear.laboratory.widget.CountProgress
         android:id="@+id/progressView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

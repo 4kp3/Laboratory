@@ -1,41 +1,8 @@
-package com.lovely.bear.laboratory
+package com.lovely.bear.laboratory.util
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Paint
 import android.text.TextUtils
-import android.util.TypedValue
-import androidx.annotation.Nullable
-import kotlin.math.ceil
 
-/**
- * 工具方法
- * @author guoyixiong
- */
-
-inline fun <reified T> startActivity(context: Context) where T : Activity {
-    context.startActivity(Intent(context, T::class.java))
-}
-
-fun dpToPx(value: Float, resources: Resources): Int {
-    return ceil(value * resources.displayMetrics.density).toInt()
-}
-
-fun dpToPx(value: Float, context: Context): Int {
-    return dpToPx(value, context.resources)
-}
-
-fun spToPx(value: Float, context: Context): Int {
-    return ceil(
-        TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP,
-            value,
-            context.resources.displayMetrics
-        )
-    ).toInt()
-}
 
 fun getTextSizeByHeight(expect: Float): Float {
     val p = Paint()

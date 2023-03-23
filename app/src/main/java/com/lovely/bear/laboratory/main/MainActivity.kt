@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory
+package com.lovely.bear.laboratory.main
 
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
@@ -11,6 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityMainBinding
+import com.lovely.bear.laboratory.performance.DebugTracing
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +34,8 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
+
+        DebugTracing.stopMethodTracing()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

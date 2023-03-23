@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory
+package com.lovely.bear.laboratory.widget
 
 import android.content.res.Resources
 import android.graphics.*
@@ -8,7 +8,7 @@ import android.util.TypedValue
 /**
  * 问题标签Drawable
  */
-class Tag(val text: String, resources: Resources) : Drawable() {
+class TagDrawable(val text: String, resources: Resources) : Drawable() {
 
     init {
         initIfNot(resources)
