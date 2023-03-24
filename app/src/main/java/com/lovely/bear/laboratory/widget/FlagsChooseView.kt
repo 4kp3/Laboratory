@@ -3,12 +3,9 @@ package com.lovely.bear.laboratory.widget
 import android.content.Context
 import android.content.Intent
 import android.util.AttributeSet
-import android.view.Gravity
 import android.widget.CheckBox
 import android.widget.LinearLayout
-import android.widget.RadioButton
 import androidx.core.view.updatePadding
-import com.example.myapplication.R
 import com.lovely.bear.laboratory.util.dpToPx
 
 class FlagsChooseView @JvmOverloads constructor (context: Context, attr: AttributeSet? = null, defStyleAttr: Int = 0) :

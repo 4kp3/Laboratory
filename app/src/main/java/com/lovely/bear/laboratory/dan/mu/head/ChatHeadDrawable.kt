@@ -5,7 +5,7 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.util.TypedValue
-import com.example.myapplication.R
+import com.lovely.bear.laboratory.R
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -185,7 +185,7 @@ class ChatHeadDrawable(
         employeeRectDirty = false
     }
 
-    override fun onBoundsChange(bounds: Rect?) {
+    override fun onBoundsChange(bounds: Rect) {
         super.onBoundsChange(bounds)
         employeeRectDirty = true
         bitmapBoundsDirty = true

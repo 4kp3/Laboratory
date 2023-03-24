@@ -59,6 +59,7 @@
             android:launchMode="singleTask"
             android:taskAffinity="com.lovely.bear.laboratory.island"
             android:theme="@style/Theme.AppCompat.Light" />
+<!--        android:allowTaskReparenting="true"-->
         <!--     task test end   -->
 
         <activity

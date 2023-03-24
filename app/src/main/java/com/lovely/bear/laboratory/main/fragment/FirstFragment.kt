@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.myapplication.databinding.FragmentFirstBinding
+import com.lovely.bear.laboratory.R
 import com.lovely.bear.laboratory.continuation.view.alert
 import com.lovely.bear.laboratory.dan.mu.Danmu2Activity
 import com.lovely.bear.laboratory.dan.mu.DanmuActivity
+import com.lovely.bear.laboratory.databinding.FragmentFirstBinding
 import com.lovely.bear.laboratory.https.initOk
 import com.lovely.bear.laboratory.https.okHttpClient
 import com.lovely.bear.laboratory.https.testOkSSL
@@ -42,13 +43,14 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val id= R.id.toolbar_special
 //        binding.buttonFirst.setOnClickListener {
 //            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
 //        }
 //        binding.progressView.setProgress(
 //            ProgressView.Progress(count = 1,total = 12,score = 0F,node = ProgressView.Progress.Node(a=74.3F,b=55F,c=20.9F))
 //        )
-        binding.toolbar.toolbarViewGroup.setOnClickListener {
+        binding.toolbarSpecial.toolbarViewGroup.setOnClickListener {
             if (binding.toolbar2ViewStub.parent != null) {
                 binding.toolbar2ViewStub.inflate()
             }

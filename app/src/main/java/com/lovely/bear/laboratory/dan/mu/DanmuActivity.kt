@@ -17,7 +17,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.R
+import com.lovely.bear.laboratory.R
 import com.lovely.bear.laboratory.dan.mu.head.ChatType
 import com.lovely.bear.laboratory.dan.mu.head.RemoteChatHeadDan
 import com.lovely.bear.laboratory.util.dpToPx

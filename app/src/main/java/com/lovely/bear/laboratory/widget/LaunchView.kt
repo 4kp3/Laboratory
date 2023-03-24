@@ -7,7 +7,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
-import com.example.myapplication.R
+import com.lovely.bear.laboratory.R
 import com.lovely.bear.laboratory.launch.*
 
 class LaunchView @JvmOverloads constructor(

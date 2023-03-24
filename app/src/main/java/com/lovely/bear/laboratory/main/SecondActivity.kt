@@ -9,11 +9,10 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.ui.AppBarConfiguration
-import com.example.myapplication.R
-import com.example.myapplication.databinding.ActivitySecondBinding
 import com.google.android.material.snackbar.Snackbar
+import com.lovely.bear.laboratory.R
+import com.lovely.bear.laboratory.databinding.ActivitySecondBinding
 import com.lovely.bear.laboratory.util.toast
-import leakcanary.AppWatcher
 
 class SecondActivity : AppCompatActivity() {
 

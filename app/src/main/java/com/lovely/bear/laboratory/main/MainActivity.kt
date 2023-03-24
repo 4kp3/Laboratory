@@ -1,16 +1,16 @@
 package com.lovely.bear.laboratory.main
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import com.example.myapplication.R
-import com.example.myapplication.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
+import com.lovely.bear.laboratory.R
+import com.lovely.bear.laboratory.databinding.ActivityMainBinding
 import com.lovely.bear.laboratory.performance.DebugTracing
 
 class MainActivity : AppCompatActivity() {

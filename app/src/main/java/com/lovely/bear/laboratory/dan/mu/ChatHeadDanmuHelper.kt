@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.util.Log
-import com.example.myapplication.R
+import com.lovely.bear.laboratory.R
 import com.lovely.bear.laboratory.util.clip
 import com.lovely.bear.laboratory.dan.mu.head.*
 import com.lovely.bear.laboratory.util.dpToPx

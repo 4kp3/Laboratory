@@ -1,9 +1,9 @@
 package com.lovely.bear.laboratory.start
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.myapplication.R
+import com.lovely.bear.laboratory.R
 import com.lovely.bear.laboratory.main.MainActivity
 import kotlinx.coroutines.delay
 

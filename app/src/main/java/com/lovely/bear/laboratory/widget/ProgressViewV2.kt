@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import com.example.myapplication.R
+import com.lovely.bear.laboratory.R
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.reflect.KClass

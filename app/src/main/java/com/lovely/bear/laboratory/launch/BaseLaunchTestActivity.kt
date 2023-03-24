@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.R
+import com.lovely.bear.laboratory.R
 import com.lovely.bear.laboratory.util.toast
 
 open class BaseLaunchTestActivity : AppCompatActivity() {
