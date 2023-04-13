@@ -3,6 +3,10 @@ plugins {
     id 'kotlin-android'
 }
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdk 33
 
@@ -21,12 +25,26 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -45,6 +63,11 @@ android {
         }
     }
 
+    lintOptions {
+        // 我的三星手机是Api 28，所以不能把target调高了
+        disable 'ExpiredTargetSdkVersion'
+        baseline file("lint-baseline.xml")
+    }
     testOptions {
         unitTests {
             includeAndroidResources = true
@@ -63,6 +86,7 @@ android {
 //            }
 //        }
     }
+
 }
 
 dependencies {

@@ -1,6 +1,9 @@
 package com.lovely.bear.laboratory.main.fragment
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.ArrayMap
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,10 +19,15 @@ import com.lovely.bear.laboratory.https.initOk
 import com.lovely.bear.laboratory.https.okHttpClient
 import com.lovely.bear.laboratory.https.testOkSSL
 import com.lovely.bear.laboratory.launch.LaunchTestStandardActivity
+import com.lovely.bear.laboratory.main.NoRegisterActivity
 import com.lovely.bear.laboratory.main.SecondActivity
+import com.lovely.bear.laboratory.surface.TestSurfaceViewActivity
 import com.lovely.bear.laboratory.widget.TagDrawable
+import com.lovely.bear.laboratory.widget.action.ActionItem
+import com.lovely.bear.laboratory.widget.action.ActionView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -88,6 +96,89 @@ class FirstFragment : Fragment() {
             com.lovely.bear.laboratory.util.startActivity<LaunchTestStandardActivity>(requireContext())
         }
 
+        binding.tvStartSurfaceActivity.setOnClickListener {
+            com.lovely.bear.laboratory.util.startActivity<TestSurfaceViewActivity>(requireContext())
+        }
+
+        initActionView(binding.actionView)
+    }
+
+    private fun initActionView(actionView: ActionView) {
+        actionView.addItem(object : ActionItem {
+            override val desc: String
+                get() = "查看 ClassLoader"
+
+            override fun doAction() {
+                val sb: java.lang.StringBuilder = StringBuilder("ClassLoader:\n")
+                //Log.d("ClassLoader",)
+                var classLoader = this@FirstFragment.javaClass.classLoader
+                while (classLoader != null) {
+                    sb.append(classLoader).append("\n")
+                    classLoader = classLoader.parent
+                }
+                Log.d("ClassLoader:", sb.toString())
+            }
+        })
+
+        actionView.addItem(object : ActionItem {
+            override val desc: String
+                get() = "查看 ActivityThread 的 ClassLoader"
+
+            override fun doAction() {
+                val atClazz = Class.forName("android.app.ActivityThread")
+                val currATField = atClazz.getDeclaredField("sCurrentActivityThread")
+                currATField.isAccessible = true
+                val appBindDataField = atClazz.getDeclaredField("mBoundApplication")
+
+
+                val packagesField = atClazz.getDeclaredField("mPackages")
+                packagesField.isAccessible = true
+
+//                val appBindDataClazz = Class.forName("android.app.ActivityThread.AppBindData")
+//                val loadedApkField = appBindDataClazz.getDeclaredField("info")
+
+                val laClazz = Class.forName("android.app.LoadedApk")
+                val baseClassLoaderField = laClazz.getDeclaredField("mBaseClassLoader")
+                baseClassLoaderField.isAccessible = true
+                //val defaultClassLoaderField = laClazz.getDeclaredField("mDefaultClassLoader")
+
+                val currentAT = currATField.get(atClazz)
+//                val appBindData = appBindDataField.get(currentAT)
+                val packages = packagesField.get(currentAT) as ArrayMap<String, WeakReference<Any>>
+                val sb = java.lang.StringBuilder("Packages:\n")
+                for (p in packages) {
+                    sb.append(p.key).append("-").append(p.value.get()).append("\n")
+                }
+                Log.d("packages", sb.toString())
+
+//                val loadedApk = loadedApkField.get(appBindData)
+//                val baseClassLoader = baseClassLoaderField.get(loadedApk) as? ClassLoader
+//                val defaultClassLoader = defaultClassLoaderField.get(loadedApk) as? ClassLoader
+//                val baseClassLoader =
+
+                fun showClassLoader(prefix: String, classLoader: ClassLoader?) {
+                    val sb: java.lang.StringBuilder = StringBuilder("$prefix:\n")
+                    //Log.d("ClassLoader",)
+                    var clazzLoader: ClassLoader? = classLoader
+                    while (clazzLoader != null) {
+                        sb.append(clazzLoader).append("\n")
+                        clazzLoader = clazzLoader.parent
+                    }
+                    Log.d("ClassLoader:", sb.toString())
+                }
+
+//                showClassLoader("baseClassLoader", baseClassLoader)
+//                showClassLoader("defaultClassLoader", defaultClassLoader)
+            }
+        })
+        actionView.addItem(object : ActionItem {
+            override val desc: String
+                get() = "启动一个未注册的 Activity"
+
+            override fun doAction() {
+                startActivity(Intent(activity!!.applicationContext, NoRegisterActivity::class.java))
+            }
+        })
     }
 
     override fun onResume() {

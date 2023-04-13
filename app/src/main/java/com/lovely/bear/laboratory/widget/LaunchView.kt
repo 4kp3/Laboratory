@@ -2,20 +2,16 @@ package com.lovely.bear.laboratory.widget
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.util.AttributeSet
-import android.view.Gravity
-import android.widget.Button
-import android.widget.LinearLayout
-import com.lovely.bear.laboratory.R
-import com.lovely.bear.laboratory.launch.*
+import com.lovely.bear.laboratory.widget.action.ActionView
+import com.lovely.bear.laboratory.widget.action.LaunchActivityItem
 
-class LaunchView @JvmOverloads constructor(
+open class LaunchView @JvmOverloads constructor(
     context: Context,
     attr: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) :
-    LinearLayout(context, attr, defStyleAttr) {
+    ActionView(context, attr, defStyleAttr) {
 
     private val flagsChooseView: FlagsChooseView
 
@@ -25,40 +21,14 @@ class LaunchView @JvmOverloads constructor(
         }
 
     init {
-        orientation = VERTICAL
-        dividerDrawable = context.getDrawable(R.drawable.black_line)
-
-        gravity = Gravity.CENTER_HORIZONTAL
-
         flagsChooseView = FlagsChooseView(context)
         addView(flagsChooseView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-
-        addItem("打开 LaunchTestStandardActivity 标准页面", LaunchTestStandardActivity::class.java)
-        addItem("打开 LaunchTestSingleTopActivity 单顶页面", LaunchTestSingleTopActivity::class.java)
-        addItem("打开 LaunchTestSingleTaskActivity 单任务页面", LaunchTestSingleTaskActivity::class.java)
-        addItem(
-            "打开 LaunchTestSingleInstanceActivity 独立任务页面",
-            LaunchTestSingleInstanceActivity::class.java
-        )
-        addItem(
-            "打开 LaunchTestSingleTaskIslandAffiActivity 独立任务页面\n指定任务栈 ",
-            LaunchTestSingleTaskIslandAffiActivity::class.java
-        )
     }
 
-    private fun <C : Activity> addItem(text: String, clazz: Class<C>) {
-        val tv = Button(context)
-
-
-        tv.setOnClickListener {
-            val i = Intent(context.applicationContext, clazz)
-            launchFlag?.let { i.setFlags(launchFlag!!) }
-            context.startActivity(i)
-        }
-
-        tv.text = text
-        val lp = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        addView(tv, lp)
+    fun <C : Activity> addItem(desc: String, clazz: Class<C>) {
+        super.addItem(
+            LaunchActivityItem(desc = desc, clazz = clazz, context = context) {
+                launchFlag ?: 0
+            })
     }
-
 }

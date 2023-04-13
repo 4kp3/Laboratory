@@ -46,6 +46,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_open_danmu2" />
+
+        <TextView
+            android:id="@+id/tv_start_surface_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="打开 SurfaceView 测试页面"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_open_danmu2" />
     </LinearLayout>
 
     <TextView
@@ -105,5 +115,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.lovely.bear.laboratory.widget.action.ActionView
+        android:id="@+id/actionView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/progressView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

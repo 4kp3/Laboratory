@@ -3,6 +3,7 @@ package com.lovely.bear.laboratory
 import android.app.Application
 import android.os.Debug
 import com.lovely.bear.laboratory.performance.DebugTracing
+import java.io.File
 
 /**
  *
@@ -19,6 +20,11 @@ class MyApplication : Application() {
         APP = this
 
         DebugTracing.startApp2MainActivity()
+
+        resources.javaClass.classLoader
+        assets
+
+        applicationInfo.sourceDir
     }
 
 }
