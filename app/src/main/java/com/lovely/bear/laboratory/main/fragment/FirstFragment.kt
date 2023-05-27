@@ -15,6 +15,8 @@ import com.lovely.bear.laboratory.continuation.view.alert
 import com.lovely.bear.laboratory.dan.mu.Danmu2Activity
 import com.lovely.bear.laboratory.dan.mu.DanmuActivity
 import com.lovely.bear.laboratory.databinding.FragmentFirstBinding
+import com.lovely.bear.laboratory.function.async.AsyncLayoutActivity
+import com.lovely.bear.laboratory.function.async.AsyncLayoutControlActivity
 import com.lovely.bear.laboratory.https.initOk
 import com.lovely.bear.laboratory.https.okHttpClient
 import com.lovely.bear.laboratory.https.testOkSSL
@@ -177,6 +179,25 @@ class FirstFragment : Fragment() {
 
             override fun doAction() {
                 startActivity(Intent(activity!!.applicationContext, NoRegisterActivity::class.java))
+            }
+        })
+
+        actionView.addItem(object : ActionItem {
+            override val desc: String
+                get() = "使用 AsyncLayoutInflater 预加载 Activity ContentView"
+
+            override fun doAction() {
+                AsyncLayoutActivity.preloadContentView(requireContext())
+                startActivity(Intent(activity!!.applicationContext, AsyncLayoutActivity::class.java))
+            }
+        })
+
+        actionView.addItem(object :ActionItem{
+            override val desc: String
+                get() = "使用 AsyncLayoutInflater 预加载 Activity 对照页面（正常填充View）"
+
+            override fun doAction() {
+                startActivity(Intent(activity!!.applicationContext, AsyncLayoutControlActivity::class.java))
             }
         })
     }

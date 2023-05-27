@@ -3,9 +3,13 @@ package com.lovely.bear.laboratory.launch
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.datepicker.MaterialDatePicker.InputMode
 import com.lovely.bear.laboratory.R
 import com.lovely.bear.laboratory.util.toast
+import retrofit2.http.Body
+import retrofit2.http.GET
 
 open class BaseLaunchTestActivity : AppCompatActivity() {
 
@@ -13,6 +17,8 @@ open class BaseLaunchTestActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_tip)
     }
 
+
+    @GET("")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launch_test_base)

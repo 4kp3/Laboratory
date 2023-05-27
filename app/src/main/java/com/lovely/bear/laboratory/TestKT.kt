@@ -1,15 +1,13 @@
 package com.lovely.bear.laboratory
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.lang.StringBuilder
-
-class TestK {
-
-    fun <T> sum(t: T, t2: T): T where  T : Number {
-        return t;
-    }
-
-
-}
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.startCoroutine
 
 data class Box<T>(var data:T)
 
@@ -30,8 +28,8 @@ fun <T> copyData(source:Box< out T>,dest:Box<in T>){
 }
 
 fun main() {
-    val box1=Box("i'm created in box1,is a String");
-    val box2=Box<CharSequence>(StringBuilder("i'm created in box2,is a StringBuilder"));
-    copyData<String>(box1,box2)
-    println(box2.data)
+//    val box1=Box("i'm created in box1,is a String");
+//    val box2=Box<CharSequence>(StringBuilder("i'm created in box2,is a StringBuilder"));
+//    copyData<String>(box1,box2)
+//    println(box2.data)
 }

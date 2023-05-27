@@ -92,7 +92,8 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'androidx.lifecycle:lifecycle-process:2.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
@@ -101,6 +102,7 @@ dependencies {
     //Jetpack
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.asynclayoutinflater:asynclayoutinflater:1.0.0")
 
     // Kotlin
     //ui
@@ -122,9 +124,14 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.13.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
 
+    // data
+    implementation 'com.google.code.gson:gson:2.10.1'
+
     // Test start
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
+
+    // 组件化
 
 
     // Testing-only dependencies

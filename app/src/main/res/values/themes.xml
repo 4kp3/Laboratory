@@ -17,6 +17,8 @@
     <style name="Theme.MyApplication.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <!--      TODO splash 页面和 main 页面的切换  -->
+        <!--        <item name="android:windowBackground">@drawable/ic_launcher_background</item>-->
     </style>
 
     <style name="Theme.MyApplication.NoActionBar.Splash">
@@ -32,4 +34,11 @@
     <style name="Fullscreen" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFullscreen">true</item>
     </style>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.AppCompat.Light.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.AppCompat.Light.NoActionBar" parent="Base.Theme.AppCompat.Light.NoActionBar" />
 </resources>
