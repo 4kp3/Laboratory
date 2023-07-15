@@ -23,26 +23,26 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <master.flame.danmaku.ui.widget.DanmakuSurfaceView
-            android:id="@+id/v_danmaku"
-            android:layout_width="match_parent"
-            android:layout_height="146dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <master.flame.danmaku.ui.widget.DanmakuSurfaceView-->
+<!--            android:id="@+id/v_danmaku"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="146dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
-        <master.flame.danmaku.ui.widget.DanmakuSurfaceView
-            android:id="@+id/v_danmaku1"
-            android:layout_width="match_parent"
-            android:layout_height="146dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <master.flame.danmaku.ui.widget.DanmakuSurfaceView-->
+<!--            android:id="@+id/v_danmaku1"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="146dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
-        <master.flame.danmaku.ui.widget.DanmakuSurfaceView
-            android:id="@+id/v_danmaku2"
-            android:layout_width="match_parent"
-            android:layout_height="146dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <master.flame.danmaku.ui.widget.DanmakuSurfaceView-->
+<!--            android:id="@+id/v_danmaku2"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="146dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
         <TextView
             android:layout_width="wrap_content"

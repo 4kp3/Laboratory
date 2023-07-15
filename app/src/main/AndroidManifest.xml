@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
     <application
         android:name=".MyApplication"
@@ -14,7 +15,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
+        <activity
+            android:name=".bitmap.BitmapAlgorithmActivity"
+            android:exported="false" />
         <!-- <activity -->
         <!-- android:name=".main.NoRegisterActivity" -->
         <!-- android:exported="false" /> -->
@@ -88,19 +91,8 @@
             android:label="@string/title_activity_second"
             android:theme="@style/Theme.MyApplication.NoActionBar" />
         <activity
-            android:name=".dan.mu.DanmuActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleInstance"
-            android:screenOrientation="landscape"
-            android:theme="@style/Fullscreen" />
-        <activity
-            android:name=".dan.mu.Danmu2Activity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name=".surface.TestSurfaceViewActivity"
-            android:exported="false" />
-
-        <!--function-->
+            android:exported="false" /> <!-- function -->
         <activity android:name=".function.async.AsyncLayoutControlActivity" />
         <activity
             android:name=".function.async.AsyncLayoutActivity"
