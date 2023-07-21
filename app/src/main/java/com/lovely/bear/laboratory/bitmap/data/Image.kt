@@ -2,15 +2,32 @@ package com.lovely.bear.laboratory.bitmap.data
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.AdaptiveIconDrawable
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.VectorDrawable
 import com.lovely.bear.laboratory.MyApplication
-import com.lovely.bear.laboratory.bitmap.Result
+import com.lovely.bear.laboratory.bitmap.analyse.EdgeResult
+import com.lovely.bear.laboratory.bitmap.mono.Mono
 
 open class Image(val bitmap: Bitmap) {
-    var edgeBitmap: Result? = null
+    var edgeBitmap: EdgeResult? = null
+    var mono: Mono? = null
+    var appInfo: AppInfo? = null
 }
 
-open class IconImage(val label: String, val icon: Drawable, bitmap: Bitmap) : Image(bitmap)
+open class IconImage(val label: String, val icon: Drawable, bitmap: Bitmap) : Image(bitmap) {
+    val iconType: String = when (icon) {
+        is AdaptiveIconDrawable -> "Adaptive"
+        is BitmapDrawable -> "Bitmap"
+        is VectorDrawable -> "Vector"
+        is ColorDrawable -> "Color"
+        is GradientDrawable -> "Gradient"
+        else -> icon::class.simpleName ?: ""
+    }
+}
 
 class AdaptiveIconImage(
     val fgBitmap: IconImage,
