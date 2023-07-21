@@ -1,0 +1,79 @@
+buildscript {
+    dependencies {
+//        classpath "com.google.protobuf:protobuf-gradle-plugin:$protobuf_plugin_version"
+        // 配置TraceFix，自动打桩使用，在正式版本无需引入当前插件，避免影响编译速度
+        //classpath("io.github.gracker:TraceFix:${TRACEFIX_VERSION}") { changing = true }
+    }
+}
+
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+//    id 'org.jetbrains.kotlin.kapt'
+}
+
+android {
+    namespace 'com.android.launcher3.icons'
+
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    buildFeatures {
+        buildConfig = true
+    }
+    
+    defaultConfig {
+        minSdkVersion MIN_SDK
+        targetSdkVersion TARGET_SDK
+        // 配置图标包状态的管理者，避免其他应用来更新状态
+        buildConfigField "String", "ICON_PACK_MANAGER_APP_NAME", "\"com.nothing.launcher\""
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src', 'src_full_lib']
+            manifest.srcFile 'AndroidManifest.xml'
+            res.srcDirs = ['res']
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+
+    }
+    kotlinOptions {
+        allWarningsAsErrors = false
+        jvmTarget = '1.8'
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked"
+    }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+        }
+
+        debug {
+            minifyEnabled false
+        }
+    }
+}
+
+
+dependencies {
+    compileOnly files('libs/framework.jar')
+    implementation "androidx.core:core:${core_version}"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation "androidx.core:core-ktx:$core_version"
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+}

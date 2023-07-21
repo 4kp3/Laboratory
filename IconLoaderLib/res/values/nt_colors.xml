@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+**
+** Copyright 2018, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <!--亮暗色图标需要的颜色，由于同时有需要，所以四种颜色分别定义-->
+    <color name="mono_color_foreground_color">@android:color/system_neutral2_700</color>
+    <color name="mono_color_background_color">@android:color/system_accent1_100</color>
+    <color name="mono_color_foreground_color_night">@android:color/system_accent1_100</color>
+    <color name="mono_color_background_color_night">@android:color/system_neutral1_900</color>
+
+    <color name="mono_nothing_foreground_color">@android:color/system_neutral1_900</color>
+    <color name="mono_nothing_background_color">@android:color/system_neutral1_50</color>
+    <color name="mono_nothing_foreground_color_night">@android:color/system_neutral1_50</color>
+    <color name="mono_nothing_background_color_night">@android:color/system_neutral1_900</color>
+</resources>
