@@ -12,7 +12,7 @@ import com.lovely.bear.laboratory.R
 * <author> <time> <version> <desc>
 */
 object LocalIconLoader {
-    private val resImages = listOf(R.mipmap.icon_ios_cloud_192, R.mipmap.icon_ios_letter)
+    private val resImages = listOf(R.mipmap.icon_ios_cloud_192)
     fun load(): List<Image> {
         return resImages.map {
             ResImage(it).also { resImage ->

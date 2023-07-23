@@ -15,8 +15,8 @@ object AppIconLoader {
 
     val labelList = listOf(
         "音乐",
-        "哔哩哔哩",
-        "Word",
+//        "哔哩哔哩",
+//        "Word",
 //        "设置"
     )
 
@@ -25,8 +25,8 @@ object AppIconLoader {
         val result = launcherApps.getActivityList(null, UserHandle.getUserHandleForUid(0))
             .filter {
                 val label = it.label.toString()
-//                labelList.any { l -> label.contains(l) }
-                true
+                labelList.any { l -> label.contains(l) }
+//                true
             }.take(10)
             .mapNotNull {
                 buildImage(it.getIcon(IconConfig.densityDpi)).apply {

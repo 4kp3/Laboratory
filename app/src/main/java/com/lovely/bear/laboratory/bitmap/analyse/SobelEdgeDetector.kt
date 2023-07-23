@@ -7,7 +7,8 @@ import android.graphics.Paint
 import android.graphics.Rect
 import androidx.compose.ui.unit.dp
 import com.lovely.bear.laboratory.bitmap.PixelUtils
-import kotlin.math.min
+import com.lovely.bear.laboratory.bitmap.RectUtils
+import com.lovely.bear.laboratory.bitmap.data.Direction
 import kotlin.math.sqrt
 
 
@@ -51,6 +52,8 @@ class SobelEdgeDetector : EdgeDetector {
         val width: Int = source.width
         val height: Int = source.height
         val totalPixelsCount = width * height
+        val bitmapRect = Rect(0, 0, width, height)
+        val edgesBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
 
         var isSolidColor: Boolean = true
         var isTransparent: Boolean = true
@@ -98,7 +101,6 @@ class SobelEdgeDetector : EdgeDetector {
             }
         }
 
-        val edgesBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
 
         // 定义Sobel算子
         val sobelX = arrayOf(intArrayOf(-1, 0, 1), intArrayOf(-2, 0, 2), intArrayOf(-1, 0, 1))
@@ -155,41 +157,36 @@ class SobelEdgeDetector : EdgeDetector {
             })
 
             // 内容矩形和图像外边界，分别比较四个边距，取最小的那条边作为最后方形的边
-            val leftDistance = bound.left
-            val topDistance = bound.top
-            val rightDistance = width - bound.right
-            val bottomDistance = height - bound.bottom
-            val minDistance =
-                min(min(leftDistance, rightDistance), min(topDistance, bottomDistance))
-            val imageBound = Rect(0, 0, width, height)
-            val radius = when (minDistance) {
-                leftDistance -> {
-                    imageBound.centerX() - bound.left
+            val radius = when (RectUtils.getMinGapDirection(bitmapRect, bound)) {
+                is Direction.LEFT -> {
+                    bitmapRect.centerX() - bound.left
                 }
 
-                rightDistance -> {
-                    bound.right - imageBound.centerX()
+                is Direction.RIGHT -> {
+                    bound.right - bitmapRect.centerX()
                 }
 
-                topDistance -> {
-                    imageBound.centerY() - bound.top
+                is Direction.TOP -> {
+                    bitmapRect.centerY() - bound.top
                 }
 
-                bottomDistance -> {
-                    bound.bottom - imageBound.centerY()
+                is Direction.BOTTOM -> {
+                    bound.bottom - bitmapRect.centerY()
                 }
-
-                else -> throw IllegalArgumentException("边界计算错误")
             }
 
             val centerMinimum = Rect(
-                imageBound.centerX() - radius, imageBound.centerY() - radius,
-                imageBound.centerX() + radius, imageBound.centerY() + radius,
+                bitmapRect.centerX() - radius, bitmapRect.centerY() - radius,
+                bitmapRect.centerX() + radius, bitmapRect.centerY() + radius,
             )
 
-
-
-            EdgeResult.Image(isBlackAndTransparent, bound, centerMinimum, edgesBitmap,isCompletelyOpaque)
+            EdgeResult.Image(
+                isBlackAndTransparent,
+                centerMinimum = centerMinimum,
+                minimum = bound,
+                bitmap = edgesBitmap,
+                isCompletelyOpaque
+            )
         }
 
     }

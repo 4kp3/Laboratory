@@ -8,7 +8,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.UserHandle
 import com.lovely.bear.laboratory.MyApplication
-import com.lovely.bear.laboratory.bitmap.IconConfig
+import com.lovely.bear.laboratory.bitmap.icon.IconConfig
 
 object AppIcon {
 
@@ -53,10 +53,10 @@ object AppIcon {
             }
 
             else -> {
-                drawable.setBounds(0, 0, IconConfig.iconSize, IconConfig.iconSize)
+                drawable.setBounds(0, 0, IconConfig.iconSizePx, IconConfig.iconSizePx)
                 Bitmap.createBitmap(
-                    IconConfig.iconSize,
-                    IconConfig.iconSize,
+                    IconConfig.iconSizePx,
+                    IconConfig.iconSizePx,
                     Bitmap.Config.ARGB_8888,
                     true
                 ).also {

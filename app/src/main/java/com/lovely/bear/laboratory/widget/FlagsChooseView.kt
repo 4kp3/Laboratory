@@ -43,7 +43,7 @@ class FlagsChooseView @JvmOverloads constructor (context: Context, attr: Attribu
             }
         }
 
-        rb.updatePadding(left=dpToPx(4F,context),right=dpToPx(4F,context))
+        rb.updatePadding(left=dpToPx(4F),right=dpToPx(4F))
         val lp = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
 
         addView(rb, lp)

@@ -1,24 +1,29 @@
 package com.lovely.bear.laboratory.bitmap.mono
 
 import android.graphics.Bitmap
+import android.graphics.BitmapShader
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Size
 import androidx.core.graphics.scale
+import com.lovely.bear.laboratory.bitmap.PathUtils
 import com.lovely.bear.laboratory.bitmap.RectUtils
 import com.lovely.bear.laboratory.bitmap.analyse.EdgeResult
 import com.lovely.bear.laboratory.bitmap.data.Corners
 import com.lovely.bear.laboratory.bitmap.data.Image
 import com.lovely.bear.laboratory.bitmap.data.RoundRect
 import com.lovely.bear.laboratory.bitmap.data.makeEdgeBitmap
+import com.lovely.bear.laboratory.bitmap.data.moveToCenter
 import com.lovely.bear.laboratory.bitmap.dpSize
 import com.lovely.bear.laboratory.bitmap.icon.IconConfig
 import com.lovely.bear.laboratory.bitmap.toSize
 import com.lovely.bear.laboratory.bitmap.trackIcon
-import kotlin.math.max
-import kotlin.math.min
 
 /*
 * Copyright (C), 2023, Nothing Technology
@@ -125,84 +130,77 @@ object MonoBuilder {
      * @param request 必须是图像，不能为空白或者纯色
      */
     fun buildAuto(request: MonoRequest): Mono.Auto {
-//        val mono =
         // mono 边长
         val sideLength = request.size.width
         val halfSideLength = sideLength / 2
-        val monoRect=Rect(0,0,sideLength,sideLength)
 
         trackIcon("请求尺寸 ${request.size}，半边 $halfSideLength，请求尺寸 ${request.size.dpSize()}")
 
         // 采集边界信息
         val image = request.source
+        val srcBitmap = image.bitmap
         val sourceSize = image.bitmap.toSize()
         trackIcon("原始图像尺寸 $sourceSize")
-//        if (sourceSize.width > sideLength || sourceSize.height > sideLength) {
-//        }
+
         val edgeResult = image.edgeBitmap ?: makeEdgeBitmap(image)
 
         if (edgeResult !is EdgeResult.Image) throw IllegalArgumentException("非图像，不可进行mono转换")
 
+        trackIcon("图像分析结果：内容边界${edgeResult.minimum}，中心边界${edgeResult.centerMinimum}")
 
         /**
          * 计算图像内容的缩放值，以及进行原图裁剪，用于下一步处理
          * mono展示窗口为边长sideLength的方形，图像内容最终会填充到这里，所以最大尺寸也为sideLength的方形
          * - 当 contentArea>monoViewWindow，按照contentArea最长边缩放确保内容都被展示
          * - 当 contentArea<=monoViewWindow，不需要缩放，裁剪原图至monoViewWindow大小
+         *
+         * 先缩放再处理
          */
         val center = edgeResult.centerMinimum
-        val roundRect=RoundRect(center, Corners())
-        var scale =RectUtils.getMinimalScale(monoRect,roundRect)
-        val greyRect = android.graphics.Rect()
+        // todo 分析器分析圆角,这里先用0圆角
+        val srcRoundRect = RoundRect(center, Corners())
+        val dstInfo = getGoodOutline(request)
+        // todo 后面所有的边界使用dst，而不是mono size
+        val gap = dstInfo.second
+        val dstRoundRect = dstInfo.first
+
+        val scaledInfo = RectUtils.getMinimalScale(dstRoundRect, srcRoundRect, gap)
+//        val scaledSrcRoundRect = scaledInfo.first
+        val scaleFactor = scaledInfo.second
+
+        trackIcon("图像裁剪规划：外框${dstRoundRect}\n   缩放比例${scaleFactor}, gap $gap")
+
+        val greyRect = Rect(0, 0, sideLength, sideLength)
         val greyMaterial: Bitmap
 
 
-        if (scale<1F) {
-            // 内容大于mono尺寸，缩小
 
-            val i = image.bitmap.scale(
-                (sourceSize.width * scale).toInt(),
-                (sourceSize.height * scale).toInt()
-            )
+        // 缩小后裁剪
+        // todo 边距补偿，无需放大给到mono转换器，避免无谓转换，最后再转一次即可
+        val scaledBitmap = if (scaleFactor<1F) srcBitmap.scale(
+            (sourceSize.width * scaleFactor).toInt(),
+            (sourceSize.height * scaleFactor).toInt()
+        ) else srcBitmap
 
+        // 越界处理，若原图小于mono尺寸，需要创建一个更大的bitmap，用空白填充周围空隙
+        if (scaledBitmap.width < sideLength || scaledBitmap.height < sideLength) {
+            // 填充原图
             greyMaterial = Bitmap.createBitmap(
-                i,
-                (center.left * scale).toInt(),
-                (center.top * scale).toInt(),
-                (center.width() * scale).toInt(),
-                (center.height() * scale).toInt()
+                greyRect.width(),
+                greyRect.height(),
+                Bitmap.Config.ARGB_8888
             )
-//            val ds = 1 - scale
-//            val dxPerSide = (ds * center.width() / 2).toInt()
-//            val dyPerSide = (ds * center.height() / 2).toInt()
-//            greyRect.set(
-//                center.left + dxPerSide,
-//                center.top + dyPerSide,
-//                center.right - dxPerSide,
-//                center.bottom - dyPerSide
-//            )
-
+            val canvas = Canvas()
+            canvas.setBitmap(greyMaterial)
+            // 中心居中绘制
+            val x = (sideLength - scaledBitmap.width) / 2F
+            val y = (sideLength - scaledBitmap.height) / 2F
+            canvas.drawBitmap(scaledBitmap, x, y, null)
         } else {
-            // 内容小，不缩放
-            // 裁剪出mono内容大小作为下一步处理的图片
-            greyRect.set(
-                center.centerX() - halfSideLength,
-                center.centerY() - halfSideLength,
-                center.centerX() + halfSideLength,
-                center.centerY() + halfSideLength
-            )
-//            // 越界处理
-            greyRect.let {
-                it.set(
-                    max(center.left, it.left),
-                    max(center.top, it.top),
-                    min(center.right, it.right),
-                    min(center.bottom, it.bottom),
-                )
-            }
-
+            greyRect.moveToCenter(scaledBitmap.width/2, scaledBitmap.height/2)
+            // 对原图裁切
             greyMaterial = Bitmap.createBitmap(
-                image.bitmap,
+                scaledBitmap,
                 greyRect.left,
                 greyRect.top,
                 greyRect.width(),
@@ -210,35 +208,37 @@ object MonoBuilder {
             )
         }
 
-        trackIcon("内容最小中心矩形 $center，内容原始矩形 ${edgeResult.minimum}，缩放比例$scale")
+//        trackIcon("内容最小中心矩形 $center，内容原始矩形 ${edgeResult.minimum}，缩放比例$scale")
 
-        // 灰度处理并缩放
+        // 灰度处理, 无需缩放
         val mono = IconConfig.converterAuto.grayAndDrawCircle(
-            BitmapDrawable(greyMaterial),
+            greyMaterial,
             sideLength,
-//            scale
         )
 
         // 裁切为圆形，要求返回的mono必须为mono size大小的方形
-//        val canvas = Canvas()
-//        val circleMono = Bitmap.createBitmap(mono.width,mono.height,Bitmap.Config.ALPHA_8)
-//        canvas.setBitmap(circleMono)
-//        val c = Path()
-//        c.addCircle(
-//            halfSideLength.toFloat(),halfSideLength.toFloat(),halfSideLength.toFloat(),
-//            Path.Direction.CCW
-//        )
-//        c.close()
-//        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-//            // 圆形之内透明度保留，之外丢弃
-//            shader = BitmapShader(mono,Shader.TileMode.CLAMP,Shader.TileMode.CLAMP)
-//        }
-//        canvas.drawPath(c,paint)
-//
+        val canvas = Canvas()
+        val circleMono = Bitmap.createBitmap(sideLength, sideLength, Bitmap.Config.ALPHA_8)
+        canvas.setBitmap(circleMono)
+        val roundRectPath =
+//        roundRectPath.addRect(RectF(0F,0F,sideLength.toFloat(),sideLength.toFloat()),Path.Direction.CW)
+            PathUtils.createRoundedRectPath(
+            0F,
+            0F,
+            sideLength.toFloat(),
+            sideLength.toFloat(),
+            dstRoundRect.corners.normalCorner.toFloat()
+        )
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            // 圆形之内透明度保留，之外丢弃
+            shader = BitmapShader(mono, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+        }
+        canvas.drawPath(roundRectPath, paint)
+
         val monoSize = Size(mono.width, mono.height)
 //        trackIcon("最终 mono 大小：$monoSize")
 
-        return Mono.Auto(mono, size = monoSize, request)
+        return Mono.Auto(circleMono, size = monoSize, request)
     }
 
 }
@@ -267,8 +267,15 @@ fun getGoodScale(content: Rect, origin: Rect, monoSize: Size): Float {
     return 1F;
 }
 
-fun getGoodOutline() {
-
+/**
+ * 根据图像获取最佳边界，最终的mono内容会缩放到返回的边界中
+ */
+fun getGoodOutline(request: MonoRequest): Pair<RoundRect, Int> {
+    val monoSize = request.size
+    // todo 根据内容，确定圆角大小
+    val rect = RoundRect(content = Rect(0, 0, monoSize.width, monoSize.height), corners = Corners())
+    // todo 根据内容，确定空隙大小
+    return Pair(rect, 20)
 }
 
 fun Drawable.toBitmap(size: Size): Bitmap {

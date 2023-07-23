@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Laboratory"
 include ':app'
+include ':IconLoaderLib'
