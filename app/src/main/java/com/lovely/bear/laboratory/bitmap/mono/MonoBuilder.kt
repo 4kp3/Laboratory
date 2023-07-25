@@ -158,6 +158,7 @@ object MonoBuilder {
          */
         val center = edgeResult.centerMinimum
         // todo 分析器分析圆角,这里先用0圆角
+        // 必须有内容的圆角数据，用来确定轮廓圆角大小，否则最终绘制圆角时可能把内容裁切或者大小不合适
         val srcRoundRect = RoundRect(center, Corners())
         val dstInfo = getGoodOutline(request)
         // todo 后面所有的边界使用dst，而不是mono size
@@ -183,7 +184,10 @@ object MonoBuilder {
         ) else srcBitmap
 
         // 越界处理，若原图小于mono尺寸，需要创建一个更大的bitmap，用空白填充周围空隙
-        if (scaledBitmap.width < sideLength || scaledBitmap.height < sideLength) {
+        if (scaledBitmap.width < greyRect.width() || scaledBitmap.height < greyRect.height()) {
+
+            trackIcon("缩放后的原图小于greyRect要求尺寸，进行扩充：scaledBitmap[${scaledBitmap.width},${scaledBitmap.height}],greyRect $greyRect")
+
             // 填充原图
             greyMaterial = Bitmap.createBitmap(
                 greyRect.width(),
@@ -193,10 +197,15 @@ object MonoBuilder {
             val canvas = Canvas()
             canvas.setBitmap(greyMaterial)
             // 中心居中绘制
-            val x = (sideLength - scaledBitmap.width) / 2F
-            val y = (sideLength - scaledBitmap.height) / 2F
-            canvas.drawBitmap(scaledBitmap, x, y, null)
+            val x = (greyRect.width() - scaledBitmap.width) / 2F
+            val y = (greyRect.height() - scaledBitmap.height) / 2F
+
+            val centerRectF=RectF(x,y,x+scaledBitmap.width.toFloat(),y+scaledBitmap.height.toFloat())
+            // todo 矩阵转换是否更高效
+            canvas.drawBitmap(scaledBitmap,null, centerRectF, null)
         } else {
+            trackIcon("缩放后的原图大于greyRect尺寸，直接进行裁剪")
+
             greyRect.moveToCenter(scaledBitmap.width/2, scaledBitmap.height/2)
             // 对原图裁切
             greyMaterial = Bitmap.createBitmap(
@@ -275,7 +284,7 @@ fun getGoodOutline(request: MonoRequest): Pair<RoundRect, Int> {
     // todo 根据内容，确定圆角大小
     val rect = RoundRect(content = Rect(0, 0, monoSize.width, monoSize.height), corners = Corners())
     // todo 根据内容，确定空隙大小
-    return Pair(rect, 20)
+    return Pair(rect, 10)
 }
 
 fun Drawable.toBitmap(size: Size): Bitmap {

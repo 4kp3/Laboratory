@@ -61,12 +61,12 @@ android {
         jvmTarget = '1.8'
     }
 
-    externalNativeBuild {
-        cmake {
-            path file('src/main/cpp/CMakeLists.txt')
-            version '3.22.1'
-        }
-    }
+//    externalNativeBuild {
+//        cmake {
+//            path file('src/main/cpp/CMakeLists.txt')
+//            version '3.22.1'
+//        }
+//    }
 
     lintOptions {
         // 我的三星手机是Api 28，所以不能把target调高了

@@ -15,9 +15,9 @@ object AppIconLoader {
 
     val labelList = listOf(
         "音乐",
-//        "哔哩哔哩",
-//        "Word",
-//        "设置"
+        "哔哩哔哩",
+        "Word",
+        "设置"
     )
 
     fun load(): List<Image> {
