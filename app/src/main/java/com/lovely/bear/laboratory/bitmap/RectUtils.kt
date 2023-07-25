@@ -59,9 +59,9 @@ object RectUtils {
 
         val scale =
             if (minGap < gap) {
-                val factor = gap * 1F / scaledSrc.width
-                scaledSrc = scaledSrc.scaleAndMove(factor,centerX=centerX,centerY=centerY)
-                scaleEquals - factor
+                val factor = gap * 2F / scaledSrc.width
+                scaledSrc = scaledSrc.scaleAndMove(1-factor,centerX=centerX,centerY=centerY)
+                scaledSrc.width*1F/src.width
             } else scaleEquals
 
         return Pair(scaledSrc,scale)

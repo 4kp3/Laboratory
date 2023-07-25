@@ -14,10 +14,10 @@ import com.lovely.bear.laboratory.bitmap.mono.makeMono
 object AppIconLoader {
 
     val labelList = listOf(
-        "音乐",
-        "哔哩哔哩",
+//        "音乐",
+//        "哔哩哔哩",
         "Word",
-        "设置"
+//        "设置"
     )
 
     fun load(): List<Image> {

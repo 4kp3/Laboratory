@@ -282,9 +282,10 @@ fun getGoodScale(content: Rect, origin: Rect, monoSize: Size): Float {
 fun getGoodOutline(request: MonoRequest): Pair<RoundRect, Int> {
     val monoSize = request.size
     // todo 根据内容，确定圆角大小
-    val rect = RoundRect(content = Rect(0, 0, monoSize.width, monoSize.height), corners = Corners())
+    // 如果是全图，就裁剪为正圆。当前正圆受加载到的合成图影响已经是正圆
+    val rect = RoundRect(content = Rect(0, 0, monoSize.width, monoSize.height), corners = Corners(68,20))
     // todo 根据内容，确定空隙大小
-    return Pair(rect, 10)
+    return Pair(rect, 5)
 }
 
 fun Drawable.toBitmap(size: Size): Bitmap {
