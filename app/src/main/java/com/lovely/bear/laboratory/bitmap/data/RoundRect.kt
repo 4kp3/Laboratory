@@ -2,7 +2,7 @@ package com.lovely.bear.laboratory.bitmap.data
 
 import android.graphics.Rect
 
-data class RoundRect(val content: Rect, val corners: Corners) {
+data class RoundRect(val content: Rect, val corners: Corners, val safeRadius: Int = 0) {
     val width = content.width()
     val height = content.height()
 
@@ -13,8 +13,13 @@ data class RoundRect(val content: Rect, val corners: Corners) {
     ): RoundRect {
         return RoundRect(
             content = content.scaleAndMove(factor, centerX = centerX, centerY = centerY),
-            corners.scale(factor = factor)
+            corners.scale(factor = factor),
+            safeRadius = (factor * safeRadius).toInt()
         )
+    }
+
+    override fun toString(): String {
+        return "RoundRect(content=$content, corners=$corners, safeRadius=$safeRadius, width=$width, height=$height)"
     }
 
 

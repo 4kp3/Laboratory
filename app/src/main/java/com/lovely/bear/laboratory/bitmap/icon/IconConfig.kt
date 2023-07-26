@@ -21,7 +21,7 @@ object IconConfig {
     var monoRatio = 42 / 108F
         private set
 
-    var safeZoneRatio = 66/108F
+    var safeZoneRatio = 66 / 108F
 
     var densityDpi = 0
         private set
@@ -47,13 +47,23 @@ object IconConfig {
         private set
 
     // mono 窗口大小，方形
-    var monoSizeDp = iconSizeDp* monoRatio
+    var monoSizeDp = iconSizeDp * monoRatio
         private set
 
     var monoSizePx = 0
         private set
 
-    var monoOuterCircleRadiusDp = sqrt(monoSizeDp*monoSizeDp/2F)
+    // 下面的比率，是一个圆角占边长的比例
+    // 默认方形图标的圆角大小，占图片边长的比例，比如0.2，最终会有0.4比例为圆弧
+    val defaultSquareCornerRadiusRatio = 0.4F / 2
+
+    // 全图内容类型图标的圆角比例，暂定位圆形比如Bili漫画
+    val defaultFullContentIconCornerRadiusRatio = 1F / 2
+
+    // 默认空隙占比mono尺寸比率
+    val defaultGapRatio = 0.25F / 2
+
+    var monoOuterCircleRadiusDp = sqrt(monoSizeDp * monoSizeDp / 2F)
     var monoOuterCircleRadiusPx = dpToPx(monoOuterCircleRadiusDp)
 
     /**
@@ -63,7 +73,7 @@ object IconConfig {
         get() = sqrt(monoSizePx * monoSizePx / 2F)
 
     val converter: IconGrayConverter by lazy {
-        IconGrayConverter(monoSizePx)
+        IconGrayConverter(iconSizePx)
     }
 
     val converterAuto: IconGrayConverterAuto by lazy {

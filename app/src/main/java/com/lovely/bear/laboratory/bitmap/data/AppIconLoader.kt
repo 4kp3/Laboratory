@@ -15,8 +15,21 @@ object AppIconLoader {
 
     val labelList = listOf(
 //        "音乐",
-//        "哔哩哔哩",
+        "哔哩哔哩",
+        "AliExpress",
         "Word",
+        "Microsoft Powerpoint",
+
+        "TeraBox",
+        "slice",
+        "Botim",
+        "Snaptube",
+
+        "翻译",
+        "UTS",
+        "Confirmtkt",
+        "Xstream",
+        "Flightradar24",
 //        "设置"
     )
 
@@ -27,7 +40,7 @@ object AppIconLoader {
                 val label = it.label.toString()
                 labelList.any { l -> label.contains(l) }
 //                true
-            }.take(10)
+            }.take(8)
             .mapNotNull {
                 buildImage(it.getIcon(IconConfig.densityDpi)).apply {
                     appInfo = AppInfo(it.label.toString(), this is AdaptiveIconImage)
@@ -42,7 +55,7 @@ object AppIconLoader {
                     // 构建mono
                     mono = makeMono(this)
                 }
-            }
+            }.takeLast(8)
         return result
     }
 

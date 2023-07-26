@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import androidx.compose.ui.unit.dp
-import com.lovely.bear.laboratory.bitmap.data.PixelUtils
+import com.lovely.bear.laboratory.bitmap.utils.PixelUtils
 import kotlin.math.sqrt
 
 
@@ -200,7 +200,6 @@ class SobelEdgeDetector : EdgeDetector {
 
         return actualRect
     }
-
 
 
     // todo 使用位字段

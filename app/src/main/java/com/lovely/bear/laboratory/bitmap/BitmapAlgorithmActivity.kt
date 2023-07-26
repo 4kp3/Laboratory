@@ -298,9 +298,50 @@ fun AMono(label: String = "mono", mono: Mono) {
                 IconMonoBound()
             }
             Text(
-                text = "适配效果",
+                text = mono.label?:"mono",
                 modifier = Modifier.width(80.dp)
             )
+        }
+
+        val extra=mono.extra
+
+        if (extra != null) {
+            Column() {
+                val extraBitmap = extra.bitmap
+                Box(contentAlignment = Alignment.Center) {
+
+                    val scale = IconConfig.iconSizePx * 1F / extra.size.width
+                    val bitmap = if (scale < 1F) {
+                        extraBitmap.scale(IconConfig.iconSizePx, IconConfig.iconSizePx)
+                    } else extraBitmap
+
+                    androidx.compose.foundation.Image(
+                        painter = BitmapPainter(bitmap.asImageBitmap()),
+                        modifier = Modifier
+                            .size(IconConfig.iconSizeDp.dp, IconConfig.iconSizeDp.dp)
+                            // mono尺寸大于图标尺寸时，是系统原始mono，包含了透明间距，需要缩放到icon大小
+                            .scale(if (scale < 1F) scale else 1F)
+                            .drawWithContent {
+                                drawRect(bg, colorFilter = monoBgColorFilter)
+                                drawImage(
+                                    bitmap.asImageBitmap(),
+                                    colorFilter = monoFgColorFilter,
+                                    topLeft = Offset(
+                                        (IconConfig.iconSizePx - bitmap.width) / 2F,
+                                        (IconConfig.iconSizePx - bitmap.height) / 2F
+                                    )
+                                )
+                            },
+                        contentDescription = extra.label?:"额外mono"
+                    )
+
+                    IconMonoBound()
+                }
+                Text(
+                    text = extra.label?:"额外mono",
+                    modifier = Modifier.width(80.dp)
+                )
+            }
         }
     }
 }

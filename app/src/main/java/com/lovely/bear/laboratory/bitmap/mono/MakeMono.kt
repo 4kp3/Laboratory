@@ -2,7 +2,7 @@ package com.lovely.bear.laboratory.bitmap.mono
 
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.util.Size
-import com.lovely.bear.laboratory.bitmap.PixelUtils
+import com.lovely.bear.laboratory.bitmap.utils.PixelUtils
 import com.lovely.bear.laboratory.bitmap.analyse.EdgeResult
 import com.lovely.bear.laboratory.bitmap.data.AdaptiveIconImage
 import com.lovely.bear.laboratory.bitmap.data.Image

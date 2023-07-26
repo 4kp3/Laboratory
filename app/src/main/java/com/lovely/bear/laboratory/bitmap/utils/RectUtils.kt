@@ -1,22 +1,19 @@
-package com.lovely.bear.laboratory.bitmap
+package com.lovely.bear.laboratory.bitmap.utils
 
 import android.graphics.Rect
 import com.lovely.bear.laboratory.bitmap.data.CornerDirection
 import com.lovely.bear.laboratory.bitmap.data.Direction
 import com.lovely.bear.laboratory.bitmap.data.RoundRect
-import com.lovely.bear.laboratory.bitmap.data.moveToCenter
-import java.lang.Integer.min
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
-
 
 /*
 * Copyright (C), 2023, Nothing Technology
 * FileName: RectUtils
 * Author: yixiong.guo
 * Date: 2023/7/20 10:31
-* Description:  
+* Description:
 * History:
 * <author> <time> <version> <desc>
 */
@@ -33,7 +30,7 @@ object RectUtils {
      *
      * @param cornerDistance dst的圆角到
      */
-    fun getMinimalScale(dst: RoundRect, src: RoundRect, gap: Int): Pair< RoundRect,Float> {
+    fun getMinimalScale(dst: RoundRect, src: RoundRect, gap: Int): Pair<RoundRect,Float> {
 //        if (src.width < dst.width  && src.height < dst.width ) {
 //            return 1F
 //        }
@@ -52,10 +49,10 @@ object RectUtils {
 
         // 找出四个方向的边界上哪里空隙最小
         val minEdgeDirection = getMinGapDirection(dst.content, scaledSrc.content)
-        val minCorner = getMinCornerDistance(dst, scaledSrc)
+        val minCornerDistance = if (src.safeRadius>0) src.safeRadius else getMinCornerDistance(dst, scaledSrc).d
 
         // 计算出gap差量，从而计算出缩放补偿量
-        val minGap = min(minEdgeDirection.d, minCorner.d)
+        val minGap = Integer.min(minEdgeDirection.d, minCornerDistance)
 
         val scale =
             if (minGap < gap) {
@@ -160,7 +157,7 @@ object RectUtils {
             CornerDirection.LeftTop((leftTopDst - leftTopSrc).toInt()),
             CornerDirection.RightTop((rightTopDst - rightTopSrc).toInt()),
             CornerDirection.RightBottom((rightBottomDst - rightBottomSrc).toInt()),
-            CornerDirection.LeftBottom((leftBottomDst - leftTopSrc).toInt()),
+            CornerDirection.LeftBottom((leftBottomDst - leftBottomSrc).toInt()),
         ).min()
     }
 
@@ -173,6 +170,4 @@ object RectUtils {
         return sqrt((w / 2F - x).pow(2) + (h / 2F - y).pow(2)) + max(x, y)
     }
 
-
 }
-

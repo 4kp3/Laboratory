@@ -17,3 +17,7 @@ const val TRACK_ICON = "TRACK_ICON"
 fun trackIcon(message:String) {
     Log.d(TRACK_ICON,message)
 }
+
+fun trackIcon(caller:Any,message:String) {
+    Log.d(TRACK_ICON,"${caller::class.java.simpleName}:$message")
+}

@@ -13,23 +13,30 @@ import android.util.Size
 * <author> <time> <version> <desc>
 */
 
-sealed class Mono(val bitmap:Bitmap,val size:Size ){
+sealed class Mono(val bitmap:Bitmap,val size:Size ,val label:String?=null){
 
-    class Original ( bitmap:Bitmap,  size:Size ):Mono(bitmap,size){
+    var extra:Mono?=null
+
+    class Original ( bitmap:Bitmap,  size:Size ,label:String?=null):Mono(bitmap,size,label){
         override fun toString(): String {
             return "Original:$size"
         }
     }
 
-    class User ( bitmap:Bitmap,  size:Size, request: MonoRequest):Mono(bitmap,size){
+    class User ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):Mono(bitmap,size,label){
         override fun toString(): String {
             return "User:$size"
         }
     }
 
-    class Auto ( bitmap:Bitmap,  size:Size, request: MonoRequest):Mono(bitmap,size){
+    class Auto ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):Mono(bitmap,size,label){
         override fun toString(): String {
             return "Auto:$size"
+        }
+    }
+    class System ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):Mono(bitmap,size,label){
+        override fun toString(): String {
+            return "System:$size"
         }
     }
 }

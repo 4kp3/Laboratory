@@ -1,4 +1,4 @@
-package com.lovely.bear.laboratory.bitmap
+package com.lovely.bear.laboratory.bitmap.utils
 
 import android.graphics.Path
 import android.graphics.RectF

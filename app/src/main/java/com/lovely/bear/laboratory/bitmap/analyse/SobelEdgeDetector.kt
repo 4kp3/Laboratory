@@ -6,15 +6,16 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import androidx.compose.ui.unit.dp
-import com.lovely.bear.laboratory.bitmap.PixelUtils
-import com.lovely.bear.laboratory.bitmap.RectUtils
 import com.lovely.bear.laboratory.bitmap.data.Direction
+import com.lovely.bear.laboratory.bitmap.trackIcon
+import com.lovely.bear.laboratory.bitmap.utils.PixelUtils
+import com.lovely.bear.laboratory.bitmap.utils.RectUtils
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 
 typealias ForegroundJudgment = (pixel: Int) -> Boolean
 
-//val WhiteJudgment =
 
 class SobelEdgeDetector : EdgeDetector {
 
@@ -58,6 +59,7 @@ class SobelEdgeDetector : EdgeDetector {
         var isSolidColor: Boolean = true
         var isTransparent: Boolean = true
         var isCompletelyOpaque = source.config == Bitmap.Config.RGB_565
+        // todo 确认这种场景
         var isBlackAndTransparent: Boolean = true
         var isOriginalBitmap: Boolean = false
         var maybeContentIsBlack: Boolean = false
@@ -139,22 +141,28 @@ class SobelEdgeDetector : EdgeDetector {
 
 
         return if (isSolidColor) {
-            EdgeResult.Blank(color = firstPixel, edgesBitmap,isCompletelyOpaque)
+            EdgeResult.Blank(color = firstPixel, edgesBitmap, isCompletelyOpaque)
         } else {
 
+            val edgePixelPredicate = EdgePixelPredicate(isBlackAndTransparent)
+            // todo 渐变图既不是纯色也不是透明，找不到边缘，需要处理
+            val analysBitmap = if (isBlackAndTransparent) {
+                source
+            } else edgesBitmap
+
             val bound = findCenterBoundingRect(
-                if (isBlackAndTransparent) {
-                    source
-                } else edgesBitmap,
+                analysBitmap,
+                EdgePixelPredicate(isBlackAndTransparent),
                 isBlackAndTransparent, maybeContentIsBlack
             )
 
-            val canvas = Canvas(edgesBitmap)
-            canvas.drawRect(bound, Paint().apply {
+            val p = Paint().apply {
                 color = Color.RED
                 style = Paint.Style.STROKE
                 strokeWidth = 1.dp.value
-            })
+            }
+            val canvas = Canvas(edgesBitmap)
+            canvas.drawRect(bound, p)
 
             // 内容矩形和图像外边界，分别比较四个边距，取最小的那条边作为最后方形的边
             val radius = when (RectUtils.getMinGapDirection(bitmapRect, bound)) {
@@ -180,10 +188,37 @@ class SobelEdgeDetector : EdgeDetector {
                 bitmapRect.centerX() + radius, bitmapRect.centerY() + radius,
             )
 
+            // 根据Bound计算
+            val safeRadius = findCenterBoundingCorner(
+                bitmap = analysBitmap,
+                edgePixelPredicate = edgePixelPredicate,
+                bound = bound,
+                centerMinimum = centerMinimum,
+            )
+
+            val edgeCenterX = edgesBitmap.width / 2F
+            val edgeCenterY = edgesBitmap.height / 2F
+
+            p.color = Color.BLUE
+            canvas.drawCircle(
+                edgeCenterX,
+                edgeCenterY,
+                safeRadius.toFloat(),
+                p
+            )
+
+            p.color = Color.RED
+            canvas.drawLine(edgeCenterX, 0F, edgeCenterX, edgesBitmap.height.toFloat(), p)
+            canvas.drawLine(0F, edgeCenterY, edgesBitmap.width.toFloat(), edgeCenterY, p)
+
+            val backgroundColor = findBackgroundColor(source, bound = bound)
+
             EdgeResult.Image(
                 isBlackAndTransparent,
                 centerMinimum = centerMinimum,
                 minimum = bound,
+                safeRadius = safeRadius,
+                backgroundColor = backgroundColor,
                 bitmap = edgesBitmap,
                 isCompletelyOpaque
             )
@@ -191,6 +226,135 @@ class SobelEdgeDetector : EdgeDetector {
 
     }
 
+
+    // 寻找背景颜色值
+    // 先采用首个像素，后续采用抽样值？
+    /**
+     * @return 若bound面积小于src，则找出边界之外的颜色，否则返回null
+     */
+    private fun findBackgroundColor(src: Bitmap, bound: Rect): Int? {
+        if (src.width == bound.width() && src.height == bound.height()) return null
+
+        val x = (bound.left - 1).takeIf { it >= 0 } ?: (src.width - 1)
+        val y = (bound.top - 1).takeIf { it >= 0 } ?: (src.height - 1)
+
+        return src.getPixel(x, y)
+    }
+
+    // 寻找包围centerMinimum的最小圆，但这个圆不会把内容像素排除在外
+    private fun findCenterBoundingCorner(
+        bitmap: Bitmap,
+        edgePixelPredicate: EdgePixelPredicate,
+        bound: Rect,
+        centerMinimum: Rect,
+    ): Int {
+
+        // 把 centerMinimum 从中心分区
+        // 四分之一轮廓线
+        // x 是距离 centerX 的大小
+        // index 是高度从 centerMinimum 顶部第一个像素开是
+        val arrSize = centerMinimum.height() / 2 + 1
+        val outline = Array<Int>(arrSize) { 0 } // 0表示第一个像素
+        val centerX = centerMinimum.centerX()
+        val centerY = centerMinimum.centerY()
+        val width = bitmap.width
+
+        // 遍历 bound 区域，填充轮廓点
+        // 行扫描，找到第一个点后，这一行就跳过
+        // 左半区域
+        val lastX = ArrayList<Int>(8)
+        val continueConfirmPixelCount = 2
+        for (y in bound.top until bound.bottom) {
+
+            // 第一和第三镜像y坐标
+            val index = if (y < centerY) y - centerMinimum.top else centerMinimum.bottom - y
+            val old = outline[index]
+
+            lastX.clear()
+
+            // 前置退出条件，行扫描只在现有点位之前，之后的永远小于当前的，忽略
+            for (x in bound.left until (centerX - old)) {
+
+                // 中心线跳过
+                if (y == centerY) continue
+
+                val pixel = bitmap.getPixel(x, y)
+                // todo 根据不同图像，使用不同前景标记颜色
+                if (edgePixelPredicate.test(pixel)) {
+
+                    lastX.add(x)
+
+                    // 连续像素确认才算边缘
+                    if (lastX.size > continueConfirmPixelCount) {
+                        break
+                    }
+
+                }
+            }
+            val dx = centerX - (lastX.firstOrNull() ?: centerX)
+
+            if (dx > old) {
+                outline[index] = dx
+            }
+        }
+
+        // 右半区域
+        for (y in bound.top until bound.bottom) {
+            // 第二和第四镜像y坐标
+            val index = if (y < centerY) y - centerMinimum.top else centerMinimum.bottom - y
+            val old = outline[index]
+
+            lastX.clear()
+
+            // 前置退出条件，行扫描只在现有点位之前，之后的永远小于当前的，忽略
+            for (x in bound.right downTo centerX + old) {
+
+                // 中心线跳过
+                if (y == centerY) continue
+
+                // todo 像素访问改为数组
+                if (x >= bitmap.width) {
+                    trackIcon(this,"")
+                }
+                val pixel = bitmap.getPixel(x, y)
+                // todo 根据不同图像，使用不同前景标记颜色
+                if (edgePixelPredicate.test(pixel)) {
+
+                    lastX.add(x)
+
+                    // 连续两个像素确认
+                    if (lastX.size > continueConfirmPixelCount) {
+                        break
+                    }
+
+                }
+            }
+
+            val dx = (lastX.firstOrNull() ?: centerX) - centerX
+            if (dx > old) {
+                outline[index] = dx
+            }
+        }
+
+        val halfY = centerMinimum.height() / 2
+
+        // 计算最大半径
+        var radius = 0F
+        for (i in outline.indices) {
+            val dx = outline[i]
+            if (dx == 0) continue
+
+            val curr = sqrt(
+                dx.toFloat().pow(2) +
+                        (halfY - i).toFloat().pow(2)
+            )
+            if (curr > radius) {
+                radius = curr
+            }
+        }
+
+        return radius.toInt()
+    }
 
     /**
      *
@@ -202,6 +366,7 @@ class SobelEdgeDetector : EdgeDetector {
      */
     private fun findCenterBoundingRect(
         bitmap: Bitmap,
+        edgePixelPredicate: EdgePixelPredicate,
         isBlackAndTransparent: Boolean,
         isBlackContent: Boolean,
         minimum: Rect? = null
@@ -214,8 +379,9 @@ class SobelEdgeDetector : EdgeDetector {
         val height = bitmap.height
 
         // 初始化边界坐标为图像尺寸的最大值和最小值，以确保能找到实际的边界
-        var minX = width
-        var minY = height
+        // todo 确保边界值是可访问的！
+        var minX = width-1
+        var minY = height-1
         var maxX = 0
         var maxY = 0
 
@@ -224,11 +390,7 @@ class SobelEdgeDetector : EdgeDetector {
             for (y in 0 until height) {
                 val pixel = bitmap.getPixel(x, y)
                 // todo 根据不同图像，使用不同前景标记颜色
-                if (
-                    (isBlackAndTransparent && PixelUtils.isAlmostBlackPixel(pixel)) || PixelUtils.isAlmostWhitePixel(
-                        pixel
-                    )
-                ) { // 假设前景像素为非黑色（不透明）
+                if (edgePixelPredicate.test(pixel)) {
                     // 更新边界坐标
                     minX = Math.min(minX, x)
                     minY = Math.min(minY, y)
@@ -239,16 +401,27 @@ class SobelEdgeDetector : EdgeDetector {
         }
 
         // 计算矩形的宽度和高度
-        val rectWidth = maxX - minX + 1
-        val rectHeight = maxY - minY + 1
-
-        val actualRect = Rect(minX, minY, maxX, maxY)
+        val actualRect = Rect(minX, minY, maxX, maxY).apply {
+            if (left > right || top > bottom) {
+                trackIcon(this, "ERROR, 未找到最小外接矩形，返回原Rect")
+                set(0, 0, width-1, height-1)
+            }
+        }
 
         return actualRect
     }
 
 
     // todo 使用位字段
+
+}
+
+class EdgePixelPredicate(val isBlackOrTransparent: Boolean) {
+    // 假设前景像素为非黑色（不透明）
+    fun test(pixel: Int): Boolean {
+        return (isBlackOrTransparent && PixelUtils.isAlmostBlackPixel(pixel))
+                || PixelUtils.isAlmostWhitePixel(pixel)
+    }
 
 }
 
@@ -275,6 +448,8 @@ sealed class EdgeResult(
         val isBlackAndTransparent: Boolean,
         val centerMinimum: Rect,
         val minimum: Rect,
+        val safeRadius: Int,
+        val backgroundColor: Int?,
         bitmap: Bitmap,
         isCompletelyOpaque: Boolean
     ) : EdgeResult(bitmap, isCompletelyOpaque) {
