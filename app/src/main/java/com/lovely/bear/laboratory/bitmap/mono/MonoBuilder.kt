@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
+import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Size
@@ -289,56 +290,56 @@ fun getGoodOutline(request: MonoRequest): Pair<RoundRect, Int> {
 
     val gapRatio: Float
     // 一个圆角占mono边长的比率
-    val cornerRatio = if (imageEdgeResult != null) {
+//    val cornerRatio = if (imageEdgeResult != null) {
+//
+//        val centerMinimum = edgeResult.centerMinimum
+//        // 图标内容占满
+//        if (centerMinimum.width() == srcBitmap.width) {
+//            // 内容已经被裁切，继续铺满mono显示窗
+//            // 无背景，不需要gap缩放
+//            gapRatio = 0F
+//            IconConfig.defaultFullContentIconCornerRadiusRatio
+//        } else {
+//            // 图标内容小于图标大小，只有中心部分
+//            val isTransparentBg =
+//                imageEdgeResult.backgroundColor == android.graphics.Color.TRANSPARENT
+//            if (isTransparentBg) {
+//                // 透明无背景不需要gap缩放
+//                gapRatio = 0F
+//                // 透明背景下前景展示完美，不需要圆角裁切
+//                0F
+//            } else {
+//                // 此时内容有有色背景，需要进行圆角裁切避免方形太突兀
+//                // 目标，让内容图标的显示面积最大，同时不被圆角裁切
+//
+//                gapRatio = IconConfig.defaultGapRatio
+//                val maxLength = max(centerMinimum.width(), centerMinimum.height())
+//                val minRadius = maxLength / 2
+//                if (imageContentSafeRadius <= minRadius) {
+//                    // 内容圆角是正圆最终也会展示为圆形
+//                    // 使用默认空隙
+//                    // 正圆裁切，内容不会受裁切，同时最美观
+//                    0.5F
+//                } else {
+//                    // 计算内部圆角，外部圆角是内部的缩小版，1/2，外部的弧度要比内部更大
+//                    // 把内部 centerMinimum 按照长边 maxLength 扩展为正方形，计算圆角
+//                    val contentCorner = minRadius - sqrt(
+//                        imageContentSafeRadius.toFloat().pow(2) - minRadius.toFloat().pow(2)
+//                    )
+//                    // 外部圆角和内部的相同，测试效果
+//                    // 注意是边长比率，不是一半
+//                    // 近似圆形处理
+//                    1F * (contentCorner / maxLength)
+//                }
+//            }
+//        }
+//    } else {
+//        gapRatio = 0F
+//        IconConfig.defaultSquareCornerRadiusRatio
+//    }
 
-        val centerMinimum = edgeResult.centerMinimum
-        // 图标内容占满
-        if (centerMinimum.width() == srcBitmap.width) {
-            // 内容已经被裁切，继续铺满mono显示窗
-            // 无背景，不需要gap缩放
-            gapRatio = 0F
-            IconConfig.defaultFullContentIconCornerRadiusRatio
-        } else {
-            // 图标内容小于图标大小，只有中心部分
-            val isTransparentBg =
-                imageEdgeResult.backgroundColor == android.graphics.Color.TRANSPARENT
-            if (isTransparentBg) {
-                // 透明无背景不需要gap缩放
-                gapRatio = 0F
-                // 透明背景下前景展示完美，不需要圆角裁切
-                0F
-            } else {
-                // 此时内容有有色背景，需要进行圆角裁切避免方形太突兀
-                // 目标，让内容图标的显示面积最大，同时不被圆角裁切
-
-                gapRatio = IconConfig.defaultGapRatio
-                val maxLength = max(centerMinimum.width(), centerMinimum.height())
-                val minRadius = maxLength / 2
-                if (imageContentSafeRadius <= minRadius) {
-                    // 内容圆角是正圆最终也会展示为圆形
-                    // 使用默认空隙
-                    // 正圆裁切，内容不会受裁切，同时最美观
-                    0.5F
-                } else {
-                    // 计算内部圆角，外部圆角是内部的缩小版，1/2，外部的弧度要比内部更大
-                    // 把内部 centerMinimum 按照长边 maxLength 扩展为正方形，计算圆角
-                    val contentCorner = minRadius - sqrt(
-                        imageContentSafeRadius.toFloat().pow(2) - minRadius.toFloat().pow(2)
-                    )
-                    // 外部圆角和内部的相同，测试效果
-                    // 注意是边长比率，不是一半
-                    // 近似圆形处理
-                    1F * (contentCorner / maxLength)
-                }
-            }
-        }
-    } else {
-        gapRatio = 0F
-        IconConfig.defaultSquareCornerRadiusRatio
-    }
-
-    val corner = (cornerRatio * monoLength).toInt()
-    val gap = (gapRatio * monoLength).toInt()
+    val corner = (0.5F * monoLength).toInt()
+    val gap = (0.125 * monoLength).toInt()
     val rect =
         RoundRect(
             content = Rect(0, 0, monoLength, monoLength),
@@ -354,6 +355,16 @@ fun Drawable.toBitmap(size: Size): Bitmap {
     draw(canvas)
     return bitmap
 }
+//
+//fun  getCircleMonoWithUserVersion(){
+//    val  request: MonoRequest
+//    val image = request.source
+//    if (image is IconImage) {
+//        val icon = image.icon
+//        val source =  if (icon is AdaptiveIconDrawable) icon.foreground else icon
+//        val
+//    }
+//}
 
 
 data class MonoRequest(

@@ -18,6 +18,16 @@ import kotlin.math.sqrt
 */
 object IconConfig {
 
+    val minimalSafeZoneCalibreDp = 66F
+
+    // 最小显示（圆形）区域
+    var minimalSafeZoneCalibrePx = 0
+        private set
+
+    // 最大显示区域
+    val safeZoneLengthDp = 72F
+    var safeZoneLengthPx = 0
+        private set
     var monoRatio = 42 / 108F
         private set
 
@@ -89,6 +99,9 @@ object IconConfig {
         iconSizePx = dpToPx(iconSizeDp)
         fullySizePx = dpToPx(fullySizeDp)
         monoSizePx = dpToPx(monoSizeDp)
+
+        safeZoneLengthPx = dpToPx(safeZoneLengthDp)
+        minimalSafeZoneCalibrePx = dpToPx(minimalSafeZoneCalibreDp)
     }
 
 }

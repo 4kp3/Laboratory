@@ -60,7 +60,7 @@ import com.lovely.bear.laboratory.util.dpToPx
 import com.lovely.bear.laboratory.util.pxToDp
 
 
-class BitmapAlgorithmActivity : ComponentActivity() {
+class AdaptiveIconDrawableActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +80,8 @@ class BitmapAlgorithmActivity : ComponentActivity() {
                 ) {
                     Column {
 
+                        RoundCorner()
+                        galley(images)
                     }
                 }
             }
@@ -90,37 +92,7 @@ class BitmapAlgorithmActivity : ComponentActivity() {
 
 }
 
-@Composable
-fun App(app: AppInfo, image: IconImage) {
-    Column() {
-        Text(text = app.label, style = MaterialTheme.typography.headlineMedium)
 
-        Text(
-            text = " ${if (app.isIconAdaptive) "已" else "未"}适配",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        if (image is AdaptiveIconImage) {
-            AdaptiveIconImage(image)
-        } else {
-            LegacyIconImage(image)
-        }
-    }
-}
-
-@Composable
-fun LegacyIconImage(image: IconImage) {
-    SingleImage("系统返回", image = image)
-
-    val mono = image.mono
-
-    Spacer(modifier = Modifier.width(if (mono == null) 16.dp else 8.dp))
-
-    if (mono != null) {
-        AMono(mono = mono)
-        Spacer(modifier = Modifier.width(16.dp))
-    }
-}
 
 @Composable
 fun AdaptiveIconImage(image: AdaptiveIconImage) {
@@ -304,13 +276,14 @@ fun AMono(label: String = "mono", mono: Mono) {
 }
 
 @Composable
-fun SingleImage( image: Image, imageBackground: Color? = null) {
+fun SingleImage(label: String = "导入的图像", image: Image, imageBackground: Color? = null) {
     Row(modifier = Modifier.padding(all = Dp(8F)), verticalAlignment = CenterVertically) {
 
-//        Text(
-//            text = label,
-//            modifier = Modifier.width(80.dp)
-//        )
+
+        Text(
+            text = label,
+            modifier = Modifier.width(80.dp)
+        )
 
         ABitmap(
             label = "原始图像${if (image is IconImage) image.iconType else ""}",
@@ -397,19 +370,4 @@ fun IconMonoBound() {
                 )
             }
     )
-}
-
-@Preview("Light Mode")
-//@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, name = "Dark Mode")
-@Composable
-fun PreviewGreeting() {
-//    MyApplication2Theme {
-//        // A surface container using the 'background' color from the theme
-//        Surface(
-//            modifier = Modifier.fillMaxSize(),
-//            color = MaterialTheme.colorScheme.background
-//        ) {
-//            conversation(SampleData.conversationSample)
-//        }
-//    }
 }

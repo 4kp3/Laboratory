@@ -7,40 +7,62 @@ import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.UserHandle
+import android.util.Size
 import com.lovely.bear.laboratory.MyApplication
 import com.lovely.bear.laboratory.bitmap.icon.IconConfig
 import com.lovely.bear.laboratory.bitmap.mono.makeMono
+import com.lovely.bear.laboratory.bitmap.mono.toBitmap
 
 object AppIconLoader {
 
     val labelList = listOf(
-//        "音乐",
-        "哔哩哔哩",
-        "AliExpress",
-        "Word",
-        "Microsoft Powerpoint",
-
-        "TeraBox",
-        "slice",
-        "Botim",
-        "Snaptube",
-
-        "翻译",
-        "UTS",
-        "Confirmtkt",
-        "Xstream",
-        "Flightradar24",
+        //根据包名单独适配
+//        "NykaaFashion",
+//        "翻译",
+//        "位智",// Waze
+//        "多邻国",
+//        "Bewakoof",
+//        "Flightradar24", // 已适配，无需再处理这个应用
 //        "设置"
+//        "音乐",
+//        "哔哩",
+//        "AliExpress",
+        "Word",
+//        "Microsoft Powerpoint",
+
+//        "TeraBox",
+//        "slice",
+//        "Botim",
+//        "Snaptube",
+
+//        "UTS",
+//        "Confirmtkt",
+//        "Xstream",
+
     )
 
+    private val launcherApps by lazy { MyApplication.APP.getSystemService(LauncherApps::class.java) }
+    fun loadSystemIcon(): List<IconImage> {
+        val launcherActivityInfos = loadApps()
+        return launcherActivityInfos.map {
+            val d = it.getIcon(IconConfig.densityDpi)
+            val label = it.label.toString()
+            IconImage(label, d, d.toBitmap(Size(IconConfig.iconSizePx, IconConfig.iconSizePx)))
+        }
+    }
+
+    private fun loadApps() = launcherApps.getActivityList(null, UserHandle.getUserHandleForUid(0))
+
     fun load(): List<Image> {
-        val launcherApps = MyApplication.APP.getSystemService(LauncherApps::class.java)
-        val result = launcherApps.getActivityList(null, UserHandle.getUserHandleForUid(0))
+        val launcherActivityInfos = loadApps()
+        val labels = launcherActivityInfos.map { it.label }
+        val apps = launcherActivityInfos
             .filter {
                 val label = it.label.toString()
                 labelList.any { l -> label.contains(l) }
 //                true
-            }.take(8)
+            }.take(20)
+        val result = apps
             .mapNotNull {
                 buildImage(it.getIcon(IconConfig.densityDpi)).apply {
                     appInfo = AppInfo(it.label.toString(), this is AdaptiveIconImage)
@@ -55,7 +77,7 @@ object AppIconLoader {
                     // 构建mono
                     mono = makeMono(this)
                 }
-            }.takeLast(8)
+            }
         return result
     }
 
