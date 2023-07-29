@@ -3,9 +3,10 @@ package com.android.launcher3.icons
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
-import android.graphics.drawable.Drawable
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
 import com.nothing.launcher.icons.IconPackManager
-import com.nothing.launcher.util.BitmapUtils
 import com.nothing.launcher.util.MonoUtil
 
 /*
@@ -26,28 +27,28 @@ class IconGrayConverterAuto() {
     var outScale = 1f
     var isBadForeground = false
 
-    private var monoSize: Int=10
+    private var monoSize: Int = 10
 
-    fun grayAndDrawCircle(icon: Drawable,monoSize:Int ): Bitmap {
+    fun grayAndDrawCircle(icon: Bitmap, monoSize: Int): Bitmap {
         val gray = gray(icon, monoSize)
+//        val alphaBitmap = Bitmap.createBitmap(monoSize, monoSize, Config.ALPHA_8)
+//        val canvas = Canvas()
+//        canvas.setBitmap(alphaBitmap)
+//        val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+//        canvas.drawBitmap(gray, null, Rect(0,0,monoSize,monoSize),bitmapPaint)
+//        return alphaBitmap
         return gray
-        return BitmapUtils.scaleBitmap(
-            gray,
-            monoSize,
-            1F,
-            1F,
-            Config.ALPHA_8
-        )
     }
 
-    private fun gray(icon: Drawable, size: Int): Bitmap {
+    private fun gray(icon: Bitmap, size: Int): Bitmap {
         // 获取最大色块的灰度值
         val mostGray = getMostColorGray(icon)
 
         // 统一处理为方形
-        val bitmap = BitmapUtils.toSquareBitmap(icon, size)
+        // 外部已处理
+        // val bitmap = BitmapUtils.toSquareBitmap(icon, size)
         // 获取灰度和透明度
-        readData(bitmap, size)
+        readData(icon, size)
 
         var temp: Int
         var minGray = MAX_GRAY_VALUE
@@ -69,13 +70,12 @@ class IconGrayConverterAuto() {
         // 调整alpha值
         adjustAlpha(size, minGray)
         // 重新设置图片像素点
-        bitmap.setPixels(pixels, 0, size, 0, 0, size, size)
+        icon.setPixels(pixels, 0, size, 0, 0, size, size)
 
         // 截取图片中的非空白部分，并转为谷歌默认的ALPHA_8格式
-        // return MonoUtil.clipBitmap(bitmap, alphaArray).extractAlpha()
-        // 直接返回，因为已经进行了边缘识别
-        // todo 确认图像转换后是否透明度发生变化导致需要重新裁剪
-        return bitmap.extractAlpha()
+//         return MonoUtil.clipBitmap(icon, alphaArray).extractAlpha()
+        // 直接返回，已经处理为最合适的大小
+        return icon.extractAlpha()
     }
 
     private fun readData(bitmap: Bitmap, size: Int) {
@@ -85,9 +85,9 @@ class IconGrayConverterAuto() {
         MonoUtil.readGrayAndAlpha(bitmap, size, pixels, grayArray, alphaArray)
     }
 
-    private fun getMostColorGray(icon: Drawable): Int {
+    private fun getMostColorGray(bitmap: Bitmap): Int {
         val size = SAMPLE_PICTURE_SIZE_50
-        val bitmap = BitmapUtils.toSquareBitmap(icon, size)
+        // val bitmap = BitmapUtils.toSquareBitmap(icon, size)
         val pixels = IntArray(size * size)
         val grayArray = IntArray(size * size)
         val alphaArray = Array(size) { IntArray(size) }
@@ -145,7 +145,8 @@ class IconGrayConverterAuto() {
         val mostGrayMinValue = MAX_GRAY_VALUE - GRAY_VALUE_TOTAL / GRAY_DIVIDED_COUNT
         val mostGraySquare = mostGrayMinValue * mostGrayMinValue
         val minGraySquare = minGray * minGray
-        val k = (CONTRAST_ALPHA_MAX - CONTRAST_ALPHA_MIN).toFloat() / (mostGraySquare - minGraySquare)
+        val k =
+            (CONTRAST_ALPHA_MAX - CONTRAST_ALPHA_MIN).toFloat() / (mostGraySquare - minGraySquare)
         for (i in grayArray.indices) {
             var alpha = alphaArray[i / size][i % size]
             val gray = grayArray[i]
@@ -163,48 +164,64 @@ class IconGrayConverterAuto() {
     companion object {
         // 设计师要求，图标缩放后占背景的比例
         const val THEMED_ICON_SCALE_RATIO = 7f / 18f
+
         // 正常尺寸下的最大边距
         const val MAX_BLANK_RATIO = THEMED_ICON_SCALE_RATIO + 0.04
+
         // 正常尺寸下的最小边距
         const val MIN_BLANK_RATIO = THEMED_ICON_SCALE_RATIO - 0.04
+
         // ARGB的偏移量
         private const val ALPHA_OFFSET = 24
+
         // 经验值，0-255的灰度值平分后的等级个数
         private const val GRAY_DIVIDED_COUNT = 32
+
         // 0-255的灰度值平分后每个等级的大小
         private const val GRAY_DIVIDED_WIDTH = 256 / GRAY_DIVIDED_COUNT
+
         // 最大灰度值
         private const val MAX_GRAY_VALUE = 255
+
         // 灰度数量
         private const val GRAY_VALUE_TOTAL = 256
+
         // 对图片的像素点进行抽样处理，所设置的跨度
         private const val PICTURE_SAMPLE_STEP_4 = 4
         private const val RATIO_0_5 = 0.5f
+
         // 对于本身就半透明的像素点，进行对比度优化会有显示异常
         private const val MIN_CONTRAST_ALPHA = 110
+
         // 增加对比度时，图标主要部分的透明度
         private const val CONTRAST_ALPHA_MAX = 255
+
         // 增加对比度时，图标次要部分的透明度
         private const val CONTRAST_ALPHA_MIN = 45
+
         // 样本图片尺寸
         private const val SAMPLE_PICTURE_SIZE_50 = 50
 
         fun getMonoFgColor(context: Context, isLight: Boolean): Int {
             val isNothingMonoStyle = IconPackManager.instance.isNothingThemedIconSelected()
-            return context.getColor(if (isLight) {
-                if (isNothingMonoStyle) R.color.mono_nothing_foreground_color else R.color.mono_color_foreground_color
-            } else {
-                if (isNothingMonoStyle) R.color.mono_nothing_foreground_color_night else R.color.mono_color_foreground_color_night
-            })
+            return context.getColor(
+                if (isLight) {
+                    if (isNothingMonoStyle) R.color.mono_nothing_foreground_color else R.color.mono_color_foreground_color
+                } else {
+                    if (isNothingMonoStyle) R.color.mono_nothing_foreground_color_night else R.color.mono_color_foreground_color_night
+                }
+            )
         }
 
         fun getMonoBgColor(context: Context, isLight: Boolean): Int {
             val isNothingMonoStyle = IconPackManager.instance.isNothingThemedIconSelected()
-            return context.getColor(if (isLight) {
-                if (isNothingMonoStyle) R.color.mono_nothing_background_color else R.color.mono_color_background_color
-            } else {
-                if (isNothingMonoStyle) R.color.mono_nothing_background_color_night else R.color.mono_color_background_color_night
-            })
+            return context.getColor(
+                if (isLight) {
+                    if (isNothingMonoStyle) R.color.mono_nothing_background_color else R.color.mono_color_background_color
+                } else {
+                    if (isNothingMonoStyle) R.color.mono_nothing_background_color_night else R.color.mono_color_background_color_night
+                }
+            )
         }
     }
 }

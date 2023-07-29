@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import com.lovely.bear.laboratory.performance.DebugTracing
+import com.nothing.launcher.icons.SharedApplication
 
 /**
  *
@@ -27,7 +28,7 @@ class MyApplication : Application() {
         APP = this
 
         DebugTracing.startApp2MainActivity()
-
+        SharedApplication.init(this)
     }
 
 //    private fun checkApkSignature() {

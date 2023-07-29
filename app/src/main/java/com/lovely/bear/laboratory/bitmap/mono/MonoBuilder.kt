@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Size
 import androidx.core.graphics.scale
+import com.lovely.bear.laboratory.MyApplication
 import com.lovely.bear.laboratory.bitmap.analyse.EdgeResult
 import com.lovely.bear.laboratory.bitmap.data.AdaptiveIconImage
 import com.lovely.bear.laboratory.bitmap.data.Corners
@@ -20,16 +21,14 @@ import com.lovely.bear.laboratory.bitmap.data.Image
 import com.lovely.bear.laboratory.bitmap.data.RoundRect
 import com.lovely.bear.laboratory.bitmap.data.makeEdgeBitmap
 import com.lovely.bear.laboratory.bitmap.data.moveToCenter
-import com.lovely.bear.laboratory.bitmap.dpSize
+import com.lovely.bear.laboratory.bitmap.utils.dpSize
 import com.lovely.bear.laboratory.bitmap.icon.IconConfig
 import com.lovely.bear.laboratory.bitmap.mono.system.MonochromeIconFactory
-import com.lovely.bear.laboratory.bitmap.toSize
+import com.lovely.bear.laboratory.bitmap.utils.toSize
 import com.lovely.bear.laboratory.bitmap.trackIcon
 import com.lovely.bear.laboratory.bitmap.utils.PathUtils
 import com.lovely.bear.laboratory.bitmap.utils.RectUtils
-import kotlin.math.max
-import kotlin.math.pow
-import kotlin.math.sqrt
+import com.nothing.utils.getMonochrome
 
 /*
 * Copyright (C), 2023, Nothing Technology
@@ -118,16 +117,22 @@ object MonoBuilder {
         val material = if (source is AdaptiveIconImage) source.fgBitmap.bitmap else source.bitmap
 
         val d = IconConfig.converter.grayAndDrawCircle(BitmapDrawable(material))
-        return Mono.User(d, size = d.toSize(), request,"用户版本")
-
+        return BitmapMono.User(d, size = d.toSize(), request,"用户版本")
     }
 
+    fun buildUserVersion(source: Drawable): Drawable? {
+        return source.getMonochrome(
+            MyApplication.APP.resources,
+            source,
+            IconConfig.converter
+        )?.second
+    }
 
     /**
      * 采用了边界检测后，计算出最适合的缩放比例，从原图中创建mono
      * @param request 必须是图像，不能为空白或者纯色
      */
-    fun buildAuto(request: MonoRequest): Mono.Auto {
+    fun buildAuto(request: MonoRequest): BitmapMono.Auto {
         // mono 边长
         val sideLength = request.size.width
         val halfSideLength = sideLength / 2
@@ -259,18 +264,18 @@ object MonoBuilder {
 
         val monoUser = buildUserVersion(request)
 
-        return Mono.Auto(circleMono, size = monoSize, request,label="测试版本").apply {
+        return BitmapMono.Auto(circleMono, size = monoSize, request,label="测试版本").apply {
             extra = monoUser
         }
     }
 
-    fun buildBySystem(request: MonoRequest): Mono.System {
+    fun buildBySystem(request: MonoRequest): BitmapMono.System {
         val image = request.source
         val icon = if (image is IconImage) image.icon else BitmapDrawable(image.bitmap)
         val mono = MonochromeIconFactory(IconConfig.iconSizePx).wrap(icon)
         val size = Size(IconConfig.iconSizePx, IconConfig.iconSizePx)
         val bimmap = mono.toBitmap(size)
-        return Mono.System(bimmap, size, request, "system")
+        return BitmapMono.System(bimmap, size, request, "system")
     }
 }
 
@@ -355,16 +360,6 @@ fun Drawable.toBitmap(size: Size): Bitmap {
     draw(canvas)
     return bitmap
 }
-//
-//fun  getCircleMonoWithUserVersion(){
-//    val  request: MonoRequest
-//    val image = request.source
-//    if (image is IconImage) {
-//        val icon = image.icon
-//        val source =  if (icon is AdaptiveIconDrawable) icon.foreground else icon
-//        val
-//    }
-//}
 
 
 data class MonoRequest(

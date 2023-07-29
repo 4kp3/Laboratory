@@ -1,6 +1,7 @@
 package com.lovely.bear.laboratory.bitmap.mono
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.util.Size
 
 /*
@@ -13,30 +14,35 @@ import android.util.Size
 * <author> <time> <version> <desc>
 */
 
-sealed class Mono(val bitmap:Bitmap,val size:Size ,val label:String?=null){
-
+open  class Mono(val size:Size ,val label:String?=null){
     var extra:Mono?=null
+}
 
-    class Original ( bitmap:Bitmap,  size:Size ,label:String?=null):Mono(bitmap,size,label){
+open class BitmapMono(val bitmap:Bitmap,  size:Size ,  label:String?=null):Mono(size=size,label=label){
+    class Original ( bitmap:Bitmap,  size:Size ,label:String?=null): BitmapMono(bitmap,size,label){
         override fun toString(): String {
             return "Original:$size"
         }
     }
 
-    class User ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):Mono(bitmap,size,label){
+    class User ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):BitmapMono(bitmap,size,label){
         override fun toString(): String {
             return "User:$size"
         }
     }
 
-    class Auto ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):Mono(bitmap,size,label){
+    class Auto ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):BitmapMono(bitmap,size,label){
         override fun toString(): String {
             return "Auto:$size"
         }
     }
-    class System ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):Mono(bitmap,size,label){
+    class System ( bitmap:Bitmap,  size:Size, request: MonoRequest,label:String?=null):BitmapMono(bitmap,size,label){
         override fun toString(): String {
             return "System:$size"
         }
     }
 }
+
+open class DrawableMono(val drawable: Drawable,size:Size ,  label:String?=null):Mono(size=size,label=label)
+
+

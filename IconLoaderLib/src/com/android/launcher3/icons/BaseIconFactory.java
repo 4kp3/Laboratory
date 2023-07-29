@@ -588,7 +588,7 @@ public class BaseIconFactory implements AutoCloseable {
 
     public static class ClippedMonoDrawable extends InsetDrawable {
 
-        private final AdaptiveIconDrawable mCrop;
+        private final AdaptiveIconDrawable mCrop = new AdaptiveIconDrawable(new ColorDrawable(-16777216),(Drawable)null);
 
         // Modify by stephen.bi for NOS-1021 @{
 
@@ -597,9 +597,11 @@ public class BaseIconFactory implements AutoCloseable {
          */
         public ClippedMonoDrawable(Drawable base, float inset) {
             super(base, inset);
-            mCrop = new AdaptiveIconDrawable(new ColorDrawable(Color.BLACK), null);
         }
         // @}
+        public ClippedMonoDrawable(Drawable base) {
+            super(base, -AdaptiveIconDrawable.getExtraInsetFraction());
+        }
 
         @Override
         public void draw(Canvas canvas) {

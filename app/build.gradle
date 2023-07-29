@@ -9,7 +9,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
     namespace 'com.lovely.bear.laboratory'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId 'com.lovely.bear.laboratory'
@@ -126,7 +126,7 @@ dependencies {
 
     //ui
     implementation("io.coil-kt:coil:2.2.0")
-
+    implementation "com.google.accompanist:accompanist-drawablepainter:0.31.6-rc"
 
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
     // define any required OkHttp artifacts without version

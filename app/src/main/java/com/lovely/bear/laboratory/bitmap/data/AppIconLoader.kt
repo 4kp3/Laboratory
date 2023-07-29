@@ -9,6 +9,8 @@ import android.graphics.drawable.Drawable
 import android.os.UserHandle
 import android.util.Size
 import com.lovely.bear.laboratory.MyApplication
+import com.lovely.bear.laboratory.bitmap.IconDrawableAnalyse
+import com.lovely.bear.laboratory.bitmap.analyse
 import com.lovely.bear.laboratory.bitmap.icon.IconConfig
 import com.lovely.bear.laboratory.bitmap.mono.makeMono
 import com.lovely.bear.laboratory.bitmap.mono.toBitmap
@@ -42,13 +44,17 @@ object AppIconLoader {
     )
 
     private val launcherApps by lazy { MyApplication.APP.getSystemService(LauncherApps::class.java) }
-    fun loadSystemIcon(): List<IconImage> {
+
+
+    fun loadSystemIcon(): List<IconDrawableAnalyse> {
         val launcherActivityInfos = loadApps()
-        return launcherActivityInfos.map {
+        val iconImages = launcherActivityInfos.map {
             val d = it.getIcon(IconConfig.densityDpi)
             val label = it.label.toString()
             IconImage(label, d, d.toBitmap(Size(IconConfig.iconSizePx, IconConfig.iconSizePx)))
         }
+
+        return analyse(iconImages)
     }
 
     private fun loadApps() = launcherApps.getActivityList(null, UserHandle.getUserHandleForUid(0))

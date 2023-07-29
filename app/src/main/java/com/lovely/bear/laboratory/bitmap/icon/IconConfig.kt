@@ -3,6 +3,7 @@ package com.lovely.bear.laboratory.bitmap.icon
 import com.android.launcher3.icons.IconGrayConverter
 import com.android.launcher3.icons.IconGrayConverterAuto
 import com.lovely.bear.laboratory.MyApplication
+import com.lovely.bear.laboratory.bitmap.trackIcon
 import com.lovely.bear.laboratory.util.dpToPx
 import kotlin.math.sqrt
 
@@ -43,7 +44,12 @@ object IconConfig {
     var fullySizePx = 0
         private set
 
-    // 图标显示尺寸，view 窗口大小
+    /**
+     * todo 记得尺寸在launcher中需要动态获取，避免分辨率改变导致硬编码出错
+     * 4列 66.28？
+     * 大图标，小图标
+     * 多任务图标
+     */
     var iconSizeDp = 66.28571F
         private set
 
@@ -95,14 +101,22 @@ object IconConfig {
     }
 
     fun setup() {
-        densityDpi = MyApplication.APP.resources.configuration.densityDpi
+//        densityDpi = MyApplication.APP.resources.configuration.densityDpi
+        densityDpi = 640
         iconSizePx = dpToPx(iconSizeDp)
         fullySizePx = dpToPx(fullySizeDp)
         monoSizePx = dpToPx(monoSizeDp)
 
         safeZoneLengthPx = dpToPx(safeZoneLengthDp)
         minimalSafeZoneCalibrePx = dpToPx(minimalSafeZoneCalibreDp)
+
+        trackIcon(this,toString())
     }
+
+    override fun toString(): String {
+        return "IconConfig(minimalSafeZoneCalibreDp=$minimalSafeZoneCalibreDp, minimalSafeZoneCalibrePx=$minimalSafeZoneCalibrePx, safeZoneLengthDp=$safeZoneLengthDp, safeZoneLengthPx=$safeZoneLengthPx, monoRatio=$monoRatio, safeZoneRatio=$safeZoneRatio, densityDpi=$densityDpi, fullySizeDp=$fullySizeDp, fullySizePx=$fullySizePx, iconSizeDp=$iconSizeDp, iconSizePx=$iconSizePx, safeZoneDp=$safeZoneDp, safeZonePx=$safeZonePx, monoSizeDp=$monoSizeDp, monoSizePx=$monoSizePx, defaultSquareCornerRadiusRatio=$defaultSquareCornerRadiusRatio, defaultFullContentIconCornerRadiusRatio=$defaultFullContentIconCornerRadiusRatio, defaultGapRatio=$defaultGapRatio, monoOuterCircleRadiusDp=$monoOuterCircleRadiusDp, monoOuterCircleRadiusPx=$monoOuterCircleRadiusPx, monoRadiusPx=$monoRadiusPx)"
+    }
+
 
 }
 

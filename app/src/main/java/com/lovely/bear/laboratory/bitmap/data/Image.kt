@@ -11,6 +11,7 @@ import android.graphics.drawable.VectorDrawable
 import com.lovely.bear.laboratory.MyApplication
 import com.lovely.bear.laboratory.bitmap.analyse.EdgeResult
 import com.lovely.bear.laboratory.bitmap.mono.Mono
+import com.lovely.bear.laboratory.bitmap.utils.typeDesc
 
 open class Image(val bitmap: Bitmap) {
     var edgeBitmap: EdgeResult? = null
@@ -19,14 +20,7 @@ open class Image(val bitmap: Bitmap) {
 }
 
 open class IconImage(val label: String, val icon: Drawable, bitmap: Bitmap) : Image(bitmap) {
-    val iconType: String = when (icon) {
-        is AdaptiveIconDrawable -> "Adaptive"
-        is BitmapDrawable -> "Bitmap"
-        is VectorDrawable -> "Vector"
-        is ColorDrawable -> "Color"
-        is GradientDrawable -> "Gradient"
-        else -> icon::class.simpleName ?: ""
-    }
+    val iconType: String = icon.typeDesc()
 }
 
 class AdaptiveIconImage(

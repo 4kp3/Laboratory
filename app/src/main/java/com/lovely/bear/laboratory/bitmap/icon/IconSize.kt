@@ -1,6 +1,7 @@
 package com.lovely.bear.laboratory.bitmap.icon
 
 import android.util.Size
+import com.lovely.bear.laboratory.bitmap.utils.dpSize
 
 /*
 * Copyright (C), 2023, Nothing Technology
@@ -11,8 +12,8 @@ import android.util.Size
 * History:
 * <author> <time> <version> <desc>
 */
-data class IconSize(val actualSize:Size,val requestSize:Size,val sourceSize:Size){
+data class IconSize(val sourceSize:Size,val requestSize:Size,){
     override fun toString(): String {
-        return "IconSize(actualSize=$actualSize, requestSize=$requestSize, sourceSize=$sourceSize)"
+        return "IconSize(requestSize=$requestSize,${requestSize.dpSize()}, sourceSize=$sourceSize),${sourceSize.dpSize()}"
     }
 }

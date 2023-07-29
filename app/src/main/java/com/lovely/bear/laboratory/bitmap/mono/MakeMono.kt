@@ -7,7 +7,7 @@ import com.lovely.bear.laboratory.bitmap.analyse.EdgeResult
 import com.lovely.bear.laboratory.bitmap.data.AdaptiveIconImage
 import com.lovely.bear.laboratory.bitmap.data.Image
 import com.lovely.bear.laboratory.bitmap.data.makeEdgeBitmap
-import com.lovely.bear.laboratory.bitmap.dpSize
+import com.lovely.bear.laboratory.bitmap.utils.dpSize
 import com.lovely.bear.laboratory.bitmap.trackIcon
 
 /*
@@ -37,7 +37,7 @@ fun makeMono(image: Image): Mono {
                 mono.setBounds(0,0,monoSize.width,monoSize.height)
                 trackIcon("使用原始 mono, $monoSize,${monoSize.dpSize()}")
                 trackIcon("makeMono end")
-                return Mono.Original(mono.toBitmap(monoSize), monoSize)
+                return BitmapMono.Original(mono.toBitmap(monoSize), monoSize)
             }
 
             layerSelector(image)
