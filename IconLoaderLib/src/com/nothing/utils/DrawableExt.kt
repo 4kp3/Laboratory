@@ -13,6 +13,7 @@ package com.nothing.utils
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -59,7 +60,8 @@ fun Drawable.getMonochrome(
         // 谷歌未适配图标，采用通用适配方案处理
         originIcon?.let {
             // 仅NothingThemed生效
-            if (IconPackManager.instance.isForcedMonoEnabled && IconPackManager.instance.isNothingThemedIconSelected()) {
+            // IconPackManager.instance.isForcedMonoEnabled && IconPackManager.instance.isNothingThemedIconSelected()
+            if (true) {
                 Pair(BitmapInfo.FLAG_NT_MONO, createGeneralMono(res, it, iconConverter))
             } else {
                 null
@@ -67,6 +69,71 @@ fun Drawable.getMonochrome(
         }
     }
 }
+
+
+/**
+ * 根据初始图片类型，处理并返回对应的图片
+ */
+fun Drawable.getMonochromeV2(
+    res: Resources,
+    originIcon: Drawable?,
+    iconConverter: IconGrayConverter,
+    iconFactory: BaseIconFactory,
+    launcherBitmap: Bitmap,
+    scale: Float,//BaseIconFactory计算好的缩放比例
+): Pair<Int, Drawable?>? {
+    return if (this is AdaptiveIconDrawable && monochrome != null) {
+        // 谷歌已适配的图标
+        if ((monochrome is VectorDrawable) || (monochrome is InsetDrawable)) {
+            // VectorDrawable和InsetDrawable是大多数谷歌已适配图标的类型，均可直接使用
+            monochrome?.let { Pair(BitmapInfo.FLAG_AOSP_MONO, remakeAospMono(it, iconConverter)) }
+        } else {
+            // 极少数图标是BitmapDrawable、LayerDrawable等类型，边距可能有问题，我们重新绘制后使用
+            monochrome?.let {
+                Pair(
+                    BitmapInfo.FLAG_AOSP_MONO,
+                    remakeAospMono(res, it, iconConverter)
+                )
+            }
+        }
+    } else {
+        // 谷歌未适配图标，采用通用适配方案处理
+        // 仅NothingThemed生效
+        // IconPackManager.instance.isForcedMonoEnabled
+        if (true) {
+            // 创建移除了背景的launcher drawable，这里的创建步骤和BaseIconFactory创建图标流程一样，只不过需要移除
+            // 背景重新创建一次
+            val greyDrawable =
+                if (this is AdaptiveIconDrawable) {
+                    // 背景为空或者在坏名单中，使用原始AdaptiveIconDrawable
+                    // 否则创建只有前景的AdaptiveIconDrawable
+                    if (background == null
+                        || (background is ColorDrawable && (background!! as ColorDrawable).color == Color.TRANSPARENT)
+                        || iconConverter.isBadForeground
+                    )
+                        // todo 验证 FixsizedDrawable
+                        this
+                    else  foreground
+                } else this
+            val greyBitmap = iconFactory.createNormalizedBitmap(
+                this,
+                greyDrawable,
+                launcherBitmap,
+                scale
+            )
+            // todo 使用替换
+            val mono = iconConverter.grayAndDrawCircle(this)
+
+            Pair(
+                BitmapInfo.FLAG_NT_MONO,
+                createGeneralMono(res, BitmapDrawable(res, mono), iconConverter)
+            )
+        } else {
+            null
+        }
+    }
+}
+
 
 /**
  * 根据原生monochrome图标的边界，判断是否需要调整其边距

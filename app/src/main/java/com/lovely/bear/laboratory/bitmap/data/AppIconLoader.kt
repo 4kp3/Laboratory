@@ -18,6 +18,7 @@ import com.lovely.bear.laboratory.bitmap.mono.toBitmap
 object AppIconLoader {
 
     val labelList = listOf(
+//        "Play 商店",
         //根据包名单独适配
 //        "NykaaFashion",
 //        "翻译",
@@ -29,7 +30,7 @@ object AppIconLoader {
 //        "音乐",
 //        "哔哩",
 //        "AliExpress",
-        "Word",
+//        "Word",
 //        "Microsoft Powerpoint",
 
 //        "TeraBox",
@@ -38,16 +39,21 @@ object AppIconLoader {
 //        "Snaptube",
 
 //        "UTS",
-//        "Confirmtkt",
+        "Confirmtkt",// 有纯色背景，否则launcher的图很难看
 //        "Xstream",
 
+//        "Chrome",
     )
 
     private val launcherApps by lazy { MyApplication.APP.getSystemService(LauncherApps::class.java) }
 
 
     fun loadSystemIcon(): List<IconDrawableAnalyse> {
-        val launcherActivityInfos = loadApps()
+        val launcherActivityInfos = loadApps().filter {
+//            val label = it.label.toString()
+//            labelList.any { l -> label.contains(l) }
+                true
+        }
         val iconImages = launcherActivityInfos.map {
             val d = it.getIcon(IconConfig.densityDpi)
             val label = it.label.toString()

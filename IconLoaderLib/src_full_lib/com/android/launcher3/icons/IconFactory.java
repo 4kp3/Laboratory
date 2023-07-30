@@ -61,7 +61,7 @@ public class IconFactory extends BaseIconFactory {
 
     private IconFactory next;
 
-    private IconFactory(Context context, int fillResIconDpi, int iconBitmapSize, int poolId) {
+    public IconFactory(Context context, int fillResIconDpi, int iconBitmapSize, int poolId) {
         super(context, fillResIconDpi, iconBitmapSize);
         mPoolId = poolId;
     }

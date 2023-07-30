@@ -7,11 +7,11 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
-import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Size
 import androidx.core.graphics.scale
+import com.android.launcher3.icons.BitmapInfo
 import com.lovely.bear.laboratory.MyApplication
 import com.lovely.bear.laboratory.bitmap.analyse.EdgeResult
 import com.lovely.bear.laboratory.bitmap.data.AdaptiveIconImage
@@ -21,13 +21,13 @@ import com.lovely.bear.laboratory.bitmap.data.Image
 import com.lovely.bear.laboratory.bitmap.data.RoundRect
 import com.lovely.bear.laboratory.bitmap.data.makeEdgeBitmap
 import com.lovely.bear.laboratory.bitmap.data.moveToCenter
-import com.lovely.bear.laboratory.bitmap.utils.dpSize
 import com.lovely.bear.laboratory.bitmap.icon.IconConfig
 import com.lovely.bear.laboratory.bitmap.mono.system.MonochromeIconFactory
-import com.lovely.bear.laboratory.bitmap.utils.toSize
 import com.lovely.bear.laboratory.bitmap.trackIcon
 import com.lovely.bear.laboratory.bitmap.utils.PathUtils
 import com.lovely.bear.laboratory.bitmap.utils.RectUtils
+import com.lovely.bear.laboratory.bitmap.utils.dpSize
+import com.lovely.bear.laboratory.bitmap.utils.toSize
 import com.nothing.utils.getMonochrome
 
 /*
@@ -117,15 +117,21 @@ object MonoBuilder {
         val material = if (source is AdaptiveIconImage) source.fgBitmap.bitmap else source.bitmap
 
         val d = IconConfig.converter.grayAndDrawCircle(BitmapDrawable(material))
-        return BitmapMono.User(d, size = d.toSize(), request,"用户版本")
+        return BitmapMono.User(d, size = d.toSize(), request, "用户版本")
     }
 
-    fun buildUserVersion(source: Drawable): Drawable? {
-        return source.getMonochrome(
+    fun buildUserVersion(systemIcon: Drawable): android.util.Pair<Int, Drawable?>? {
+        val pair = systemIcon.getMonochrome(
             MyApplication.APP.resources,
-            source,
+            systemIcon,
             IconConfig.converter
-        )?.second
+        )
+
+        val drawable = pair?.second ?: return null
+        if (pair.first == BitmapInfo.FLAG_AOSP_MONO) {
+            drawable.setBounds(0, 0, IconConfig.iconSizePx, IconConfig.iconSizePx)
+        }
+        return pair
     }
 
     /**
@@ -353,11 +359,27 @@ fun getGoodOutline(request: MonoRequest): Pair<RoundRect, Int> {
     return Pair(rect, gap)
 }
 
-fun Drawable.toBitmap(size: Size): Bitmap {
-    if (this is BitmapDrawable) return bitmap
-    val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+// size 为空用内置size
+fun Drawable.toBitmap(size: Size? = null, defaultSize: Size = Size(100, 100)): Bitmap {
+
+    var drawSize = size
+    if (drawSize == null) {
+        val iW = if (intrinsicWidth > 0) intrinsicWidth else defaultSize.width
+        val iH = if (intrinsicHeight > 0) intrinsicHeight else defaultSize.height
+        drawSize = Size(iW, iH)
+    }
+
+    if (this is BitmapDrawable) {
+        if (intrinsicWidth == drawSize.width && intrinsicHeight == drawSize.height) {
+        }
+        return bitmap
+    }
+    val bitmap = Bitmap.createBitmap(drawSize.width, drawSize.height, Bitmap.Config.ARGB_8888)
+    val oldBound = bounds
     val canvas = Canvas(bitmap)
+    setBounds(0, 0, drawSize.width, drawSize.height)
     draw(canvas)
+    bounds = oldBound
     return bitmap
 }
 

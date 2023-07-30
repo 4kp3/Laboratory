@@ -1,7 +1,10 @@
 package com.lovely.bear.laboratory.bitmap.icon
 
+import com.android.launcher3.icons.BaseIconFactory
+import com.android.launcher3.icons.IconFactory
 import com.android.launcher3.icons.IconGrayConverter
 import com.android.launcher3.icons.IconGrayConverterAuto
+import com.android.launcher3.icons.IconGrayConverterCircle
 import com.lovely.bear.laboratory.MyApplication
 import com.lovely.bear.laboratory.bitmap.trackIcon
 import com.lovely.bear.laboratory.util.dpToPx
@@ -94,6 +97,13 @@ object IconConfig {
 
     val converterAuto: IconGrayConverterAuto by lazy {
         IconGrayConverterAuto()
+    }
+    val converterCircle: IconGrayConverterCircle by lazy {
+        IconGrayConverterCircle(iconSizePx)
+    }
+
+    val baseIconFactory :BaseIconFactory by lazy {
+        IconFactory(MyApplication.APP, densityDpi, iconSizePx,1000)
     }
 
     init {

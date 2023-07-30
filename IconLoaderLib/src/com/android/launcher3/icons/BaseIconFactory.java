@@ -8,10 +8,8 @@ import static com.android.launcher3.icons.BitmapInfo.FLAG_INSTANT;
 import static com.android.launcher3.icons.BitmapInfo.FLAG_WORK;
 
 import android.annotation.TargetApi;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -212,6 +210,7 @@ public class BaseIconFactory implements AutoCloseable {
         // 后续会改动初始图片，先进行备份
         Drawable originalIcon = icon.getConstantState().newDrawable().mutate();
         // @}
+        // 把非自适应图标包装成自适应图标
         icon = normalizeAndWrapToAdaptiveIcon(icon, shrinkNonAdaptiveIcons, null, scale);
         Bitmap bitmap = createIconBitmap(icon, scale[0]);
         if (icon instanceof AdaptiveIconDrawable) {
@@ -222,7 +221,7 @@ public class BaseIconFactory implements AutoCloseable {
 
         int color = extractColor(bitmap);
         BitmapInfo info = BitmapInfo.of(bitmap, color);
-
+        // 自定义Drawable，比如时钟图标，mono不处理这里
         if (icon instanceof BitmapInfo.Extender) {
             info = ((BitmapInfo.Extender) icon).getExtendedInfo(bitmap, color, this, scale[0]);
             // Modify by stephen.bi for NOS-1021 @{
@@ -289,6 +288,7 @@ public class BaseIconFactory implements AutoCloseable {
             return false;
         }
         Bitmap mono;
+        // 创建的
         if (monochromeInfo.second instanceof BitmapDrawable) {
             mono = ((BitmapDrawable) monochromeInfo.second).getBitmap();
         } else {
@@ -386,7 +386,7 @@ public class BaseIconFactory implements AutoCloseable {
         mDisableColorExtractor = true;
     }
 
-    private Drawable normalizeAndWrapToAdaptiveIcon(@NonNull Drawable icon,
+    public Drawable normalizeAndWrapToAdaptiveIcon(@NonNull Drawable icon,
             boolean shrinkNonAdaptiveIcons, RectF outIconBounds, float[] outScale) {
         if (icon == null) {
             return null;
@@ -401,6 +401,7 @@ public class BaseIconFactory implements AutoCloseable {
             AdaptiveIconDrawable dr = (AdaptiveIconDrawable) mWrapperIcon;
             dr.setBounds(0, 0, 1, 1);
             boolean[] outShape = new boolean[1];
+            // 根据图像凸包计算缩放量
             scale = getNormalizer().getScale(icon, outIconBounds, dr.getIconMask(), outShape);
             if (!outShape[0]) {
                 FixedScaleDrawable fsd = ((FixedScaleDrawable) dr.getForeground());
@@ -418,8 +419,22 @@ public class BaseIconFactory implements AutoCloseable {
         return icon;
     }
 
-    private Bitmap createIconBitmap(Drawable icon, float scale) {
+    public Bitmap createIconBitmap(Drawable icon, float scale) {
         return createIconBitmap(icon, scale, mIconBitmapSize);
+    }
+
+    // 基于createBadgedIconBitmap方法
+    public Bitmap createNormalizedBitmap(Drawable launcherIcon, Drawable bitmapIcon, Bitmap launcherBitmap, float scale) {
+        // 非AdaptiveIconDrawable时可以复用之前创建的Launcher Bitmap
+        // AdaptiveIconDrawable 由于增加了阴影，所以需要重新创建
+        if (launcherIcon.equals(bitmapIcon) && !(launcherIcon instanceof AdaptiveIconDrawable)) {
+            return launcherBitmap;
+        }
+        float[] outScale=new float[1];
+        // 重建
+        // 不纠结了
+        Drawable icon = normalizeAndWrapToAdaptiveIcon(bitmapIcon,true,null,outScale);
+        return createIconBitmap(icon,outScale[0]);
     }
 
     /**
@@ -430,7 +445,7 @@ public class BaseIconFactory implements AutoCloseable {
         return createIconBitmap(icon, scale, size, Bitmap.Config.ARGB_8888);
     }
 
-    private Bitmap createIconBitmap(@NonNull Drawable icon, float scale, int size,
+    public Bitmap createIconBitmap(@NonNull Drawable icon, float scale, int size,
             Bitmap.Config config) {
         Bitmap bitmap = Bitmap.createBitmap(size, size, config);
         if (icon == null) {
