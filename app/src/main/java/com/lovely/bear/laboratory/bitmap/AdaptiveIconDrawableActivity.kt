@@ -1,14 +1,19 @@
 package com.lovely.bear.laboratory.bitmap
 
 import android.graphics.Bitmap
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,10 +27,13 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -44,7 +52,6 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.res.ResourcesCompat.ThemeCompat
 import com.example.myapplication2.ui.theme.MyApplication2Theme
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.lovely.bear.laboratory.bitmap.data.AppIconLoader
@@ -71,6 +78,7 @@ class AdaptiveIconDrawableActivity : ComponentActivity() {
     val monoFgColorFilter = ColorFilter.tint(fg, BlendMode.SrcIn)
     val monoBgColorFilter = ColorFilter.tint(bg, BlendMode.SrcIn)
 
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -86,20 +94,68 @@ class AdaptiveIconDrawableActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color.Gray
                 ) {
-                    LazyColumn (Modifier.fillMaxSize()){
-                        items(images){
-                            IconDrawableAnalyseView(icon = it)
-                        }
-                    }
+                    MainList(images, this)
+
+//                    Box(modifier = Modifier.fillMaxSize().background(Color.White)){
+//                        Image(
+//                            painter = ColorPainter(Color.Gray),
+//                            contentDescription = "",
+//                            modifier = Modifier.size(100.dp,100.dp).drawWithContent {
+//                                drawRect(Color.Black)
+//                                drawRect(Color.Gray)
+//                                ///drawRect(Color.Transparent,size = Size(this.size.width/2,this.size.height/2),blendMode=BlendMode.SrcIn)
+//                                val p = androidx.compose.ui.graphics.Paint()
+//                                p.colorFilter =  PorterDuffColorFilter(android.graphics.Color.TRANSPARENT, PorterDuff.Mode.SRC_IN)
+//                                drawIntoCanvas {
+//                                    it.drawRect(0F,0F,100F,100F,p)
+//                                }
+//                            }
+//                        )
+//                    }
+
                 }
             }
         }
 
     }
 
-
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MainList(images: List<IconDrawableAnalyse>, scope: AdaptiveIconDrawableActivity) {
+
+    val onlyNotAdaptive = remember {
+        mutableStateOf(false)
+    }
+    val totalList = remember {
+        mutableStateOf(images.filter {
+            if (onlyNotAdaptive.value) {
+                !it.hasMonochrome
+            } else true
+        })
+    }
+
+    LazyColumn(Modifier.fillMaxSize()) {
+
+        stickyHeader {
+            Row {
+                Text(text = "只显示未适配monochrome应用")
+                Checkbox(checked = onlyNotAdaptive.value, onCheckedChange = {
+                    onlyNotAdaptive.value = it
+                })
+            }
+        }
+
+        items(images.filter {
+            if (onlyNotAdaptive.value) {
+                !it.hasMonochrome
+            } else true
+        }) {
+            scope.IconDrawableAnalyseView(icon = it)
+        }
+    }
+}
 
 @Composable
 fun AdaptiveIconDrawableActivity.IconDrawableAnalyseView(icon: IconDrawableAnalyse) {
@@ -124,11 +180,11 @@ fun AdaptiveIconDrawableActivity.IconDrawableAnalyseView(icon: IconDrawableAnaly
         ) {
 
             icon.system.let {
-                CoupleImage(label="系统返回\n${it.drawable.typeDesc()}",icon = it)
+                CoupleImage(label = "系统返回\n${it.drawable.typeDesc()}", icon = it)
             }
 
             icon.circleGreyMaterial?.let {
-                CoupleImage(label="mono原料\n${it.drawable.typeDesc()}",icon = it)
+                CoupleImage(label = "mono原料\n${it.drawable.typeDesc()}", icon = it)
             }
 
             val monos = mutableListOf<Pair<String, SingleImage>>()

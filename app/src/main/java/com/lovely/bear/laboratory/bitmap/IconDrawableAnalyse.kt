@@ -104,8 +104,11 @@ fun analyse(iconImage: IconImage):IconDrawableAnalyse {
     var devMono: Drawable? = null
     var circleGreyMaterialDrawable:Drawable? =null
     var sizedBitmap_: Bitmap? = null
+    var hasMono = true
     // 没有自带mono才创建
     if (userMono != null && userMono.first != BitmapInfo.FLAG_AOSP_MONO) {
+
+        hasMono=false
 
         val isInWhiteList = false
         // 原则是保持类型不变，确保和launcher原始图标一致
@@ -152,10 +155,12 @@ fun analyse(iconImage: IconImage):IconDrawableAnalyse {
         // 这里得到的Bitmap应用了mask和上面的缩放量，这是最终用于桌面显示的图片
         val launcherBitmap: Bitmap =
             IconConfig.baseIconFactory.createIconBitmap(circleGreyMaterialDrawable, outScale[0])
+        // 拷贝
+        val launcherBitmapTo = Bitmap.createBitmap(launcherBitmap)
         // 在此基础上，创建mono
         devMono = BitmapDrawable(
             MyApplication.APP.resources,
-            IconConfig.converterCircle.grayAndDrawCircle(launcherBitmap)
+            IconConfig.converterCircle.grayAndDrawCircle(launcherBitmapTo)
         )
         // 已调整好尺寸
         sizedBitmap_ = launcherBitmap
@@ -165,7 +170,7 @@ fun analyse(iconImage: IconImage):IconDrawableAnalyse {
             label = "mono圆形材料",
             drawable = it,
             size = IconSize(
-                sourceSize = it.toSize() ?: iconSize,
+                sourceSize = it.toSize(),
                 requestSize = iconSize
             )
         ).apply {
@@ -180,7 +185,8 @@ fun analyse(iconImage: IconImage):IconDrawableAnalyse {
         bg = bgIconDrawable,
         circleGreyMaterial = circleGreyMaterial,
         userMono = userMono?.second,
-        devMono = devMono
+        devMono = devMono,
+        hasMonochrome =hasMono
     )
 }
 
@@ -190,7 +196,8 @@ data class IconDrawableAnalyse(
     val bg: IconDrawable?,
     val userMono: Drawable?,
     val circleGreyMaterial: IconDrawable?,
-    val devMono: Drawable?
+    val devMono: Drawable?,
+    val hasMonochrome:Boolean,
 )
 
 data class IconDrawable(val label: String, val drawable: Drawable, val size: IconSize) {

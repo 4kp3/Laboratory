@@ -107,7 +107,7 @@ public class BaseIconFactory implements AutoCloseable {
     }
 
     public BaseIconFactory(Context context, int fillResIconDpi, int iconBitmapSize) {
-        this(context, fillResIconDpi, iconBitmapSize, false);
+        this(context, fillResIconDpi, iconBitmapSize, true);
     }
 
     protected void clear() {
@@ -428,11 +428,10 @@ public class BaseIconFactory implements AutoCloseable {
         // 非AdaptiveIconDrawable时可以复用之前创建的Launcher Bitmap
         // AdaptiveIconDrawable 由于增加了阴影，所以需要重新创建
         if (launcherIcon.equals(bitmapIcon) && !(launcherIcon instanceof AdaptiveIconDrawable)) {
-            return launcherBitmap;
+            return Bitmap.createBitmap(launcherBitmap);
         }
         float[] outScale=new float[1];
         // 重建
-        // 不纠结了
         Drawable icon = normalizeAndWrapToAdaptiveIcon(bitmapIcon,true,null,outScale);
         return createIconBitmap(icon,outScale[0]);
     }

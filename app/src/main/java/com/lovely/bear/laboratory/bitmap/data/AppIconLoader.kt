@@ -27,7 +27,7 @@ object AppIconLoader {
 //        "Bewakoof",
 //        "Flightradar24", // 已适配，无需再处理这个应用
 //        "设置"
-//        "音乐",
+        "音乐",
 //        "哔哩",
 //        "AliExpress",
 //        "Word",
@@ -39,7 +39,7 @@ object AppIconLoader {
 //        "Snaptube",
 
 //        "UTS",
-        "Confirmtkt",// 有纯色背景，否则launcher的图很难看
+//        "Confirmtkt",// 有纯色背景，否则launcher的图很难看
 //        "Xstream",
 
 //        "Chrome",
