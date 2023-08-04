@@ -1,11 +1,10 @@
 package com.lovely.bear.laboratory.bitmap
 
 import android.graphics.Bitmap
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
+import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -52,6 +51,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication2.ui.theme.MyApplication2Theme
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.lovely.bear.laboratory.bitmap.data.AppIconLoader
@@ -63,6 +63,10 @@ import com.lovely.bear.laboratory.bitmap.utils.dpSize
 import com.lovely.bear.laboratory.bitmap.utils.toSize
 import com.lovely.bear.laboratory.bitmap.utils.typeDesc
 import com.lovely.bear.laboratory.util.pxToDp
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 class AdaptiveIconDrawableActivity : ComponentActivity() {
@@ -87,6 +91,23 @@ class AdaptiveIconDrawableActivity : ComponentActivity() {
 //        val images = resImages + iconImages
         val images = appIconImages
 
+//        val originImage = images.first().fg?.originSizeBitmap ?: return
+//        val shadowImage1 = Bitmap.createBitmap(
+//            originImage.width + 20,
+//            originImage.height + 20,
+//            Bitmap.Config.ARGB_8888
+//        )
+//        val shadowImage2 = Bitmap.createBitmap(
+//            originImage.width + 20,
+//            originImage.height + 20,
+//            Bitmap.Config.ARGB_8888
+//        )
+//        val canvas = Canvas(shadowImage1)
+//        val canvas2 = Canvas(shadowImage2)
+//        val sg = IconConfig.baseIconFactory.shadowGenerator
+//        sg.recreateIcon(originImage, sg.mDefaultBlurMaskFilter, 200, 0, canvas)
+//        sg.recreateIcon(originImage, sg.mDefaultBlurMaskFilter, 0, 220, canvas2)
+
         setContent {
             MyApplication2Theme {
                 // A surface container using the 'background' color from the theme
@@ -96,20 +117,27 @@ class AdaptiveIconDrawableActivity : ComponentActivity() {
                 ) {
                     MainList(images, this)
 
-//                    Box(modifier = Modifier.fillMaxSize().background(Color.White)){
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .background(Color.White)
+//                    ) {
 //                        Image(
 //                            painter = ColorPainter(Color.Gray),
 //                            contentDescription = "",
-//                            modifier = Modifier.size(100.dp,100.dp).drawWithContent {
-//                                drawRect(Color.Black)
-//                                drawRect(Color.Gray)
-//                                ///drawRect(Color.Transparent,size = Size(this.size.width/2,this.size.height/2),blendMode=BlendMode.SrcIn)
-//                                val p = androidx.compose.ui.graphics.Paint()
-//                                p.colorFilter =  PorterDuffColorFilter(android.graphics.Color.TRANSPARENT, PorterDuff.Mode.SRC_IN)
-//                                drawIntoCanvas {
-//                                    it.drawRect(0F,0F,100F,100F,p)
+//                            modifier = Modifier
+//                                .size(300.dp, 300.dp)
+//                                .drawWithContent {
+//                                    drawImage(originImage.asImageBitmap())
+//                                    drawImage(
+//                                        shadowImage1.asImageBitmap(),
+//                                        topLeft = Offset(0F, originImage.height.toFloat())
+//                                    )
+//                                    drawImage(
+//                                        shadowImage2.asImageBitmap(),
+//                                        topLeft = Offset(0F, 2 * originImage.height.toFloat())
+//                                    )
 //                                }
-//                            }
 //                        )
 //                    }
 

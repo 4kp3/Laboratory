@@ -43,16 +43,16 @@ public class ShadowGenerator {
 
     // Percent of actual icon size
     public static final float KEY_SHADOW_DISTANCE = 1f/48;
-    private static final int KEY_SHADOW_ALPHA = 7;
+    private static final int KEY_SHADOW_ALPHA = 100;
     // Percent of actual icon size
     private static final float HALF_DISTANCE = 0.5f;
-    private static final int AMBIENT_SHADOW_ALPHA = 25;
+    private static final int AMBIENT_SHADOW_ALPHA = 250;
 
     private final int mIconSize;
 
     private final Paint mBlurPaint;
     private final Paint mDrawPaint;
-    private final BlurMaskFilter mDefaultBlurMaskFilter;
+    public final BlurMaskFilter mDefaultBlurMaskFilter;
 
     public ShadowGenerator(int iconSize) {
         mIconSize = iconSize;

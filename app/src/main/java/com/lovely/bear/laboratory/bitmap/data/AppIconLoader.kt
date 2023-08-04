@@ -23,11 +23,11 @@ object AppIconLoader {
 //        "NykaaFashion",
 //        "翻译",
 //        "位智",// Waze
-//        "多邻国",
+        "多邻国",
 //        "Bewakoof",
 //        "Flightradar24", // 已适配，无需再处理这个应用
 //        "设置"
-        "音乐",
+//        "音乐",
 //        "哔哩",
 //        "AliExpress",
 //        "Word",
